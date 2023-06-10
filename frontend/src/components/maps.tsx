@@ -1,24 +1,18 @@
 import React from 'react';
-import {View, Text, Image} from 'react-native';
-import {styled} from 'styled-components/native';
+import {View, Image} from 'react-native';
+// import styled from 'styled-components/native';
 
-interface MapsProps {
-}
-
-const Maps: React.FC<MapsProps> = props => {
-
+const Maps: React.FC = () => {
   return (
     <View>
-   <Image source={require('../assets/images/StationMap.png')} />     
-   {/* <StationMapImg source={require('../assets/images/StationMap.png')} /> */}
-    
+      <Image source={require('../assets/images/StationMap.png')} />
     </View>
   );
 };
 
-const StationMapImg = styled.Image`
-  width: 50%;
-  margin-top: 10px;
-`;
+// const StationMapImg = styled.Image`
+//   width: 50%;
+//   margin-top: 10px;
+// `;
 
 export default Maps;
