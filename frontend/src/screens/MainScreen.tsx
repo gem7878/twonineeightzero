@@ -1,22 +1,22 @@
 import React from 'react';
-import {Text, View} from 'react-native';
+import {View} from 'react-native';
 import styled from 'styled-components/native';
-import Congestion from '../components/congestion';
-import Maps from '../components/maps';
-import StationsHeader from '../components/stationsHeader';
-import GuideFooter from '../components/guideFooter';
+import {
+  StationsHeader,
+  Maps,
+  Congestion,
+  GuideFooter,
+} from '../components/index';
 
 const MainScreen = ({}) => {
-
   return (
     <View>
       <MainContainer>
-        <StationsHeader></StationsHeader>
-        <Maps></Maps>
-        <Congestion></Congestion>
+        <StationsHeader />
+        <Maps />
+        <Congestion />
       </MainContainer>
-      <GuideFooter
-          $isMenu={false}></GuideFooter>
+      <GuideFooter />
     </View>
   );
 };
