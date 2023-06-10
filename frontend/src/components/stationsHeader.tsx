@@ -1,36 +1,32 @@
 import React from 'react';
-import {Text, TouchableOpacity, View, Image} from 'react-native';
+import {Text, TouchableOpacity, Image} from 'react-native';
 import styled from 'styled-components/native';
 
-interface StationsHeaderProps {
-}
-
-const StationsHeader: React.FC<StationsHeaderProps> = props => {
-
+const StationsHeader: React.FC = () => {
   return (
     <HeaderContainer>
-        <HeaderSearch>
-            <SearchInput placeholder="‘화장실’의 위치를 알고 싶은가요?" />
-            <Image
-                source={require('../assets/icons/Search.png')}
-                resizeMode="contain"
-            />
-        </HeaderSearch>
-        <HeaderContent>
-            <Text>여기는 O호선의 OO역 입니다.</Text>
-            <ContentContainer>
-                <ContentBox>
-                <Text>(전)역</Text>
-                </ContentBox>
-                <ContentBox>
-                <Text>(다음)역</Text>
-                </ContentBox>
-            </ContentContainer>
-        </HeaderContent>
+      <HeaderSearch>
+        <SearchInput placeholder="‘화장실’의 위치를 알고 싶은가요?" />
+        <Image
+          source={require('../assets/icons/Search.png')}
+          resizeMode="contain"
+        />
+      </HeaderSearch>
+      <HeaderContent>
+        <Text>여기는 O호선의 OO역 입니다.</Text>
+        <ContentContainer>
+          <ContentBox>
+            <Text>(전)역</Text>
+          </ContentBox>
+          <ContentBox>
+            <Text>(다음)역</Text>
+          </ContentBox>
+        </ContentContainer>
+      </HeaderContent>
 
-        <HeaderToggleBtn>
-            <TouchableOpacity></TouchableOpacity>
-        </HeaderToggleBtn>
+      <HeaderToggleBtn>
+        <TouchableOpacity />
+      </HeaderToggleBtn>
     </HeaderContainer>
   );
 };
