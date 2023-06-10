@@ -1,8 +1,4 @@
 import React from 'react';
-import {
-  NavigationContainer,
-  useNavigationContainerRef,
-} from '@react-navigation/native';
 import {TouchableOpacity} from 'react-native';
 import styled from 'styled-components/native';
 
@@ -10,7 +6,7 @@ interface GuideFooterProps {
   $isMenu: Boolean;
 }
 
-const GuideFooter: React.FC<GuideFooterProps> = props => {
+const GuideFooter: React.FC<GuideFooterProps> = () => {
   /*const navigationRef = useNavigationContainerRef<any>();*/
   const menuList = ['가이드1', '가이드2', '가이드3', '가이드4', 'MENU'];
 
@@ -25,17 +21,17 @@ const GuideFooter: React.FC<GuideFooterProps> = props => {
           />
         </RootStack.Navigator>
       </NavigationContainer> */}
-        {menuList.map((value: string) => {
-            return (
-                <FooterBtn $isMenu={value === 'MENU' ? true : false}>
-                <TouchableOpacity>
-                    <FooterMenuText $isMenu={value === 'MENU' ? true : false}>
-                    {value}
-                    </FooterMenuText>
-                </TouchableOpacity>
-                </FooterBtn>
-            );
-        })}
+      {menuList.map((value: string) => {
+        return (
+          <FooterBtn $isMenu={value === 'MENU' ? true : false}>
+            <TouchableOpacity>
+              <FooterMenuText $isMenu={value === 'MENU' ? true : false}>
+                {value}
+              </FooterMenuText>
+            </TouchableOpacity>
+          </FooterBtn>
+        );
+      })}
     </Footer>
   );
 };
@@ -47,11 +43,11 @@ const Footer = styled.View`
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  gap: 18;
+  gap: 18px;
 `;
 const FooterBtn = styled.View<GuideFooterProps>`
-  width: 48;
-  height: 48;
+  width: 48px;
+  height: 48px;
   background-color: ${props => (props.$isMenu ? '#676767' : 'white')};
   display: flex;
   align-items: center;
