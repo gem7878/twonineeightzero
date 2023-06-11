@@ -2,11 +2,11 @@ import React from 'react';
 import {TouchableOpacity} from 'react-native';
 import styled from 'styled-components/native';
 
-interface GuideFooterProps {
+interface GuideFooterStyle {
   $isMenu: Boolean;
 }
 
-const GuideFooter: React.FC<GuideFooterProps> = () => {
+const GuideFooter: React.FC = () => {
   /*const navigationRef = useNavigationContainerRef<any>();*/
   const menuList = ['가이드1', '가이드2', '가이드3', '가이드4', 'MENU'];
 
@@ -45,7 +45,7 @@ const Footer = styled.View`
   align-items: center;
   gap: 18px;
 `;
-const FooterBtn = styled.View<GuideFooterProps>`
+const FooterBtn = styled.View<GuideFooterStyle>`
   width: 48px;
   height: 48px;
   background-color: ${props => (props.$isMenu ? '#676767' : 'white')};
@@ -53,7 +53,7 @@ const FooterBtn = styled.View<GuideFooterProps>`
   align-items: center;
   justify-content: center;
 `;
-const FooterMenuText = styled.Text<GuideFooterProps>`
+const FooterMenuText = styled.Text<GuideFooterStyle>`
   color: ${props => (props.$isMenu ? 'white' : 'black')};
   font-size: 12px;
 `;
