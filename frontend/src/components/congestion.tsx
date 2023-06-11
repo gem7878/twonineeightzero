@@ -6,7 +6,7 @@ const Congestion: React.FC = () => {
   return (
     <View>
       <CongestionBox>
-        <Text>__역의 퍙군적인 혼잡도는 __%입니다.</Text>
+        <Text>__역의 평군적인 혼잡도는 __%입니다.</Text>
       </CongestionBox>
     </View>
   );
