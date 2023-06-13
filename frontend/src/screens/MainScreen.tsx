@@ -8,7 +8,7 @@ import {
   GuideFooter,
 } from '../components/index';
 
-const MainScreen = ({}) => {
+const MainScreen = () => {
   return (
     <View>
       <MainContainer>
