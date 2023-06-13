@@ -9,10 +9,9 @@ const filePaths = "./db/서울교통공사_지하철혼잡도정보_20221231.csv
 
 const results = [];
 
-router.get("/congestion", async function (req, res, next) {
+router.get("/congestion/:name", async function (req, res, next) {
   let name = req.params.name;
   const data = await getFileContents(name);
-  //   return res.json({ success: true, data: data });
   return res.json(data);
 });
 

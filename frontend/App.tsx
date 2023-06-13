@@ -1,11 +1,11 @@
 import React from 'react';
 import {View} from 'react-native';
-import MainScreen from './src/screens/MainScreen';
+import {MainScreen} from './src/screens/index';
 
 const App = () => {
   return (
     <View>
-      <MainScreen></MainScreen>
+      <MainScreen />
     </View>
   );
 };
