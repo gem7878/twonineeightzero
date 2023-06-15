@@ -45,7 +45,7 @@ router.get("/maps/:id", async function(req,res,next) {
     const elevator = await getMapContents(current,1);
     const el_list = {};
     elevator.forEach(row => {
-        let new_row = {'상하행구분':row.상하행구분, '상세위치':row.상세위치};
+        let new_row = {'출입구번호':row.출입구번호, '상세위치':row.상세위치};
         if (Object.keys(el_list).includes(row.시작층)){
             el_list[row.시작층].push(new_row);
         } else {
