@@ -3,29 +3,34 @@ import React, {useEffect, useState} from 'react';
 import {Text, TouchableOpacity, Image} from 'react-native';
 import styled from 'styled-components/native';
 
-const StationsHeader: React.FC = () => {
-  const [facilities1, setFacilities1] = useState([]);
-  const [facilities2, setFacilities2] = useState([]);
+export interface IFacility {
+  호선: string | undefined;
+  전철역명: string | undefined;
+  화장실: string | undefined;
+  장애인화장실: string | undefined;
+  에스컬레이터: string | undefined;
+  엘레베이터: string | undefined;
+}
 
+const StationsHeader: React.FC = () => {
+  const [facilities1, setFacilities1] = useState<IFacility | null>(null);
+  const [facilities2, setFacilities2] = useState<IFacility | null>(null);
+  const [current, setCurrent] = useState({'호선':'5','역명':'김포공항'});
   useEffect(() => {
-    getData('방화', '전역');
-    getData('김포공항', '후역');
+    getData(current.호선, current.역명);
   }, []);
 
   /** Functions */
 
   const getData = async (
-    station: string | undefined,
-    order: string | undefined,
+    currentLine: string | undefined,
+    currentStation: string | undefined,
   ) => {
     axios
-      .get('http://10.0.2.2:3000/api/facility/' + station)
+      .get(`http://10.0.2.2:3000/api/maps/${currentLine}/${currentStation}`)
       .then(function (res: any) {
-        if (order === '전역') {
-          setFacilities1(res.data.data);
-        } else if (order === '후역') {
-          setFacilities2(res.data.data);
-        }
+        setFacilities1(res.data.전역);
+        setFacilities2(res.data.후역);
       })
       .catch(function (error: any) {
         console.log(error);
@@ -44,7 +49,7 @@ const StationsHeader: React.FC = () => {
       <HeaderContent>
         <Text>여기는 O호선의 OO역 입니다.</Text>
         <ContentContainer>
-          <ContentBox>
+          {/* <ContentBox>
             <Text>(전)역</Text>
             {facilities1.map((value: string, index: number) => {
               return <Text key={index}>{value}</Text>;
@@ -55,7 +60,7 @@ const StationsHeader: React.FC = () => {
             {facilities2.map((value: string) => {
               return <Text>{value}</Text>;
             })}
-          </ContentBox>
+          </ContentBox> */}
         </ContentContainer>
       </HeaderContent>
 
