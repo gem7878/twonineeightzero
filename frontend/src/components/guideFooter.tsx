@@ -21,9 +21,9 @@ const GuideFooter: React.FC = () => {
           />
         </RootStack.Navigator>
       </NavigationContainer> */}
-      {menuList.map((value: string) => {
+      {menuList.map((value: string, index: number) => {
         return (
-          <FooterBtn $isMenu={value === 'MENU' ? true : false}>
+          <FooterBtn $isMenu={value === 'MENU' ? true : false} key={index}>
             <TouchableOpacity>
               <FooterMenuText $isMenu={value === 'MENU' ? true : false}>
                 {value}
@@ -38,7 +38,8 @@ const GuideFooter: React.FC = () => {
 
 const Footer = styled.View`
   background-color: #d9d9d9;
-  height: 10%;
+  width: 100%;
+  height: 11%;
   display: flex;
   flex-direction: row;
   justify-content: center;

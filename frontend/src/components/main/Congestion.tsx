@@ -1,17 +1,25 @@
 import axios from 'axios';
 import React, {useEffect, useState} from 'react';
-import {View, Text} from 'react-native';
 import styled from 'styled-components/native';
 
-const Congestion: React.FC = () => {
+interface CongestionProps {
+  stationName: string;
+  BlackText: any;
+}
+
+const Congestion: React.FC<CongestionProps> = ({stationName, BlackText}) => {
   const [file, setFile] = useState<any>();
   const [array, setArray] = useState<any>([]);
-  const [stationName, setStationName] = useState<string>('동대문');
-  const [stationNum, setStationNum] = useState<string>('4');
   const [congestion, setCongestion] = useState<number>(0);
+  // selected
+  const [stationNum, setStationNum] = useState<string>('5');
   const [clock, setClock] = useState<string>('5시30분');
   const [week, setWeek] = useState<string>('평일');
   const [upPoint, setUpPoint] = useState<string>('상선');
+  // list
+  let stationNumList: string[] = [];
+  const [clockList, setClockList] = useState<string[]>(['5시30분']);
+  // const [upPointList, setUpPointList] = useState<string>('상선');
 
   useEffect(() => {
     getData(stationName);
@@ -24,7 +32,7 @@ const Congestion: React.FC = () => {
         csvFileToArray(res.data);
       });
   };
-  const csvFileToArray = (result: any) => {
+  const csvFileToArray = async (result: any) => {
     const csvRows = result.map((arr: any) => {
       return Object.values(arr);
     });
@@ -45,10 +53,21 @@ const Congestion: React.FC = () => {
     });
 
     setArray(csvArray);
-    return extractCongestion();
+    await extractCongestion();
   };
-  const extractCongestion = () => {
+  const extractStationNumList = async () => {
+    for (let i = 0; i < array.length; i++) {
+      if (array[i].출발역 === stationName) {
+        stationNumList.includes(array[i].호선) ||
+          stationNumList.push(array[i].호선);
+      }
+    }
+    stationNumList.sort();
+  };
+  const extractCongestion = async () => {
     let tmp: number = 0;
+    console.log(stationNumList);
+
     for (let i = 0; i < array.length; i++) {
       if (
         array[i].출발역 === stationName &&
@@ -56,6 +75,8 @@ const Congestion: React.FC = () => {
         array[i].상하구분 === upPoint &&
         array[i].호선 === stationNum
       ) {
+        console.log(array[i]);
+
         tmp = i;
         break;
       }
@@ -67,20 +88,29 @@ const Congestion: React.FC = () => {
     }
   };
   return (
-    <View>
+    <CongestionContainer>
+      <BlackText>역 내 혼잡도</BlackText>
       <CongestionBox>
-        <Text>
+        <BlackText>
+          {stationNumList}
           {stationName}역의 평균적인 혼잡도는 {congestion}%입니다.
-        </Text>
+        </BlackText>
       </CongestionBox>
-    </View>
+    </CongestionContainer>
   );
 };
-
+const CongestionContainer = styled.View`
+  padding-top: 25px;
+`;
 const CongestionBox = styled.View`
-  width: 284px;
+  width: 100%;
   height: 100px;
   border: 1px solid black;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  margin-top: 5px;
+  padding-top: 7px;
 `;
 
 export default Congestion;

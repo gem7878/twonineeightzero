@@ -5,7 +5,7 @@ import {View, Image} from 'react-native';
 const Maps: React.FC = () => {
   return (
     <View>
-      <Image source={require('../assets/images/StationMap.png')} />
+      {/* <Image source={require('../assets/images/StationMap.png')} /> */}
     </View>
   );
 };
