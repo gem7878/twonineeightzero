@@ -1,10 +1,11 @@
 import React from 'react';
 import {View} from 'react-native';
-import {MainScreen} from './src/screens/index';
+import {LandingScreen, MainScreen} from './src/screens/index';
 
 const App = () => {
   return (
     <View>
+      {/* <LandingScreen /> */}
       <MainScreen />
     </View>
   );
