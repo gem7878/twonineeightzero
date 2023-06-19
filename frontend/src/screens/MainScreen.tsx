@@ -1,25 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import Geolocation from '@react-native-community/geolocation'
+import React, {useEffect, useState} from 'react';
+import Geolocation from '@react-native-community/geolocation';
 import {Text, View} from 'react-native';
 import styled from 'styled-components/native';
-import {
-  StationsHeader,
-  Maps,
-  Congestion,
-  GuideFooter,
-} from '../components/index';
+import {Search, Maps, GuideFooter, Content} from '../components/index';
 
 const MainScreen = ({}) => {
+  const [lat, setLat] = useState(Number);
+  const [lon, setLon] = useState(Number);
 
-  const [latitude, setLatitude] = useState(Number);
-  const [longitude, setLogitude] = useState(Number);
-  
   useEffect(() => {
     Geolocation.getCurrentPosition(
       position => {
         const {latitude, longitude} = position.coords;
-        setLatitude(latitude);
-        setLogitude(longitude);
+        setLat(latitude);
+        setLon(longitude);
       },
       error => {
         console.log(error.code, error.message);
@@ -29,25 +23,22 @@ const MainScreen = ({}) => {
   }, []);
 
   return (
-    <View>
-      <MainContainer>
-        <StationsHeader />
-        <Maps />
-        <Congestion />
-        <View>
-          <Text>lat : {latitude} </Text>
-          <Text>lon : {longitude} </Text>
-        </View>
-      </MainContainer>
+    <MainContainer>
+      <Search />
+      <Content lat={lat} lon={lon} />
+      <Maps />
       <GuideFooter />
-    </View>
+    </MainContainer>
   );
 };
 
 const MainContainer = styled.View`
   background-color: #ffffff;
-  height: 90%;
+  height: 100%;
+  width: 100%;
   display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
 `;
 
