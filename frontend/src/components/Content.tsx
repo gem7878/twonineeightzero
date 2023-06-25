@@ -1,13 +1,15 @@
 import axios from 'axios';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef } from 'react';
 import {Text, View} from 'react-native';
 import styled from 'styled-components/native';
 import {Congestion, Refresh} from './index';
 
+
 interface ContentProps {
-  lat: any;
-  lon: any;
+  lat: Number;
+  lon: Number;
 }
+
 export interface IFacility {
   호선: string | undefined;
   전철역명: string | undefined;
@@ -19,34 +21,39 @@ export interface IFacility {
 const Content: React.FC<ContentProps> = ({lat, lon}) => {
   const [facilities1, setFacilities1] = useState<IFacility | null>(null);
   const [facilities2, setFacilities2] = useState<IFacility | null>(null);
-  const [stationName, setStationName] = useState<string>('개화산');
-  const [preStation, setPreStation] = useState<string>('방화');
-  const [nextStation, setNextStation] = useState<string>('김포공항');
+  const [stationName, setStationName] = useState<string>('김포공항');
+  const [preStation, setPreStation] = useState<string>('');
+  const [nextStation, setNextStation] = useState<string>('');
   const [lineNumList, setLineNumList] = useState<number[]>([1, 2, 5]);
   const [current, setCurrent] = useState({호선: '5', 역명: '김포공항'});
-
+  
+  
   useEffect(() => {
     getData(current.호선, current.역명);
   }, []);
 
   /** Functions */
-  console.log(facilities1);
-  console.log(facilities2);
+  /**console.log(facilities1);
+  console.log(facilities2);*/
 
+  // 시설물 불러오기
   const getData = async (
     currentLine: string | undefined,
     currentStation: string | undefined,
   ) => {
-    axios
+    await axios
       .get(`http://10.0.2.2:3000/api/maps/${currentLine}/${currentStation}`)
       .then(function (res: any) {
         setFacilities1(res.data.전역);
         setFacilities2(res.data.후역);
+        setPreStation(res.data.전역.전철역명);
+        setNextStation(res.data.후역.전철역명)
       })
       .catch(function (error: any) {
         console.log(error);
       });
   };
+
   return (
     <ContentContainer>
       <ContentHeader>
