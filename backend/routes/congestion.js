@@ -7,8 +7,6 @@ const es = require("event-stream");
 
 const filePaths = "./db/서울교통공사_지하철혼잡도정보_20221231.csv";
 
-const results = [];
-
 router.get("/congestion/:name", async function (req, res, next) {
   let name = req.params.name;
   const data = await getFileContents(name);
@@ -17,13 +15,31 @@ router.get("/congestion/:name", async function (req, res, next) {
 
 function getFileContents(searchTerm) {
   const results = [];
+  let today = new Date();
+  let hours = today.getHours();
+  let minutes = today.getMinutes();
+
   const stream = fs
     .createReadStream(filePaths)
-    .pipe(csv({ headers: false }))
+    .pipe(csv({ columns: true }))
     .pipe(
       es.map(function (line, cb) {
-        results.push(line);
+        if(line['출발역'].includes(searchTerm)){
+          let newLine = {};
+          let keys = ['요일구분','호선','역번호','출발역','상하구분'];
+          
+          if(minutes > 0 && minutes <= 29) {
+            keys.push((hours-1)+'시00분',(hours-1)+'시30분',hours+'시00분',hours+'시30분',(hours+1)+'시00분')
+          } else if(minutes >= 30 && minutes <= 59) {
+            keys.push((hours-1)+'시30분',hours+'시00분',hours+'시30분',(hours+1)+'시00분',(hours+1)+'시30분')
+          }
+          
+          Object.keys(line).forEach(key => {
+            if(keys.includes(key)) newLine[key] = line[key]; 
+          })
 
+          results.push(newLine);
+        }
         cb(null, line);
       })
     );
@@ -36,7 +52,7 @@ function getFileContents(searchTerm) {
 
     stream.on("end", function () {
       console.log("ReadStream End.");
-      resolve(results); // Array 반환
+      resolve(results);
     });
   });
 }
