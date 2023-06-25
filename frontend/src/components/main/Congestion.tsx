@@ -29,9 +29,11 @@ const Congestion: React.FC<CongestionProps> = ({stationName, BlackText}) => {
     axios
       .get(`http://10.0.2.2:3000/cong/congestion/${station}`)
       .then(function (res: any) {
-        csvFileToArray(res.data);
+        console.log(res.data);
+        setCongestion(res.data[0]['11시00분']); //예시 
       });
   };
+  /*
   const csvFileToArray = async (result: any) => {
     const csvRows = result.map((arr: any) => {
       return Object.values(arr);
@@ -86,7 +88,7 @@ const Congestion: React.FC<CongestionProps> = ({stationName, BlackText}) => {
         setCongestion(array[tmp][key]);
       }
     }
-  };
+  };*/
   return (
     <CongestionContainer>
       <BlackText>역 내 혼잡도</BlackText>
