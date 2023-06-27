@@ -25,7 +25,7 @@ const LandingScreen = () => {
         <StationInputBox>
           <StationTextInput
             placeholder={'운양역'}
-            placeholderTextColor="black"
+            placeholderTextColor="white"
             onChangeText={value => setStationName(value)}
           />
           <Image source={require('../assets/icons/SearchIcon.png')} />
@@ -42,6 +42,7 @@ const LandingContainer = styled.View`
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: black;
 `;
 const LandingTop = styled.View`
   display: flex;
@@ -51,24 +52,27 @@ const LandingTop = styled.View`
 `;
 const LandingText = styled.Text`
   font-size: 30px;
-  color: black;
+  color: white;
 `;
 const StationInputBox = styled.View`
-  border: 1px solid black;
+  border: 1px solid #00ffd1;
   width: 210px;
   height: 72px;
   display: flex;
   flex-direction: row;
+  align-items: center;
   justify-content: space-between;
   margin-right: 20px;
+  padding-right: 10px;
 `;
 const StationTextInput = styled.TextInput`
   height: 100%;
   font-size: 30px;
   padding-left: 35px;
+  color: white;
 `;
 const LandingBottom = styled.Text`
-  color: #454545;
+  color: #7e7e7e;
   font-size: 18px;
   margin-top: 15px;
 `;

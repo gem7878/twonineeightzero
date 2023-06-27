@@ -1,72 +1,143 @@
 import axios from 'axios';
-import React, {useEffect, useState, useRef } from 'react';
-import {Text, View} from 'react-native';
+import React, {useEffect, useState, useRef} from 'react';
+import {Image, Text, View} from 'react-native';
 import styled from 'styled-components/native';
 import {Congestion, Refresh} from './index';
-
 
 interface ContentProps {
   lat: Number;
   lon: Number;
 }
 
+interface IFDetail {
+  구분: number;
+  상세위치: string;
+}
+interface IFlocation {
+  지상1층: IFDetail | null;
+  지하1층: IFDetail | null;
+  지하2층: IFDetail | null;
+  지하3층: IFDetail | null;
+  지하4층: IFDetail | null;
+}
 export interface IFacility {
-  호선: string | undefined;
-  전철역명: string | undefined;
-  화장실: string | undefined;
-  장애인화장실: string | undefined;
-  에스컬레이터: string | undefined;
-  엘레베이터: string | undefined;
+  호선: string | null;
+  전철역명: string | null;
+  화장실: IFlocation | null;
+  장애인화장실: IFlocation | null;
+  에스컬레이터: IFlocation | null;
+  엘레베이터: IFlocation | null;
 }
 const Content: React.FC<ContentProps> = ({lat, lon}) => {
-  const [facilities1, setFacilities1] = useState<IFacility | null>(null);
-  const [facilities2, setFacilities2] = useState<IFacility | null>(null);
+  const [currentFacilitiesList, setCurrentFacilitiesList] = useState<any>([]);
+  const [preFacilitiesList, setPreFacilitiesList] = useState<any>([]);
+  const [nextFacilitiesList, setNextFacilitiesList] = useState<any>([]);
+
   const [stationName, setStationName] = useState<string>('김포공항');
   const [preStation, setPreStation] = useState<string>('');
   const [nextStation, setNextStation] = useState<string>('');
   const [lineNumList, setLineNumList] = useState<number[]>([1, 2, 5]);
   const [current, setCurrent] = useState({호선: '5', 역명: '김포공항'});
-  
-  
+
   useEffect(() => {
-    getData(current.호선, current.역명);
+    getPreNextFacilityData(current.호선, current.역명);
+    getCurrentFacilityData(current.역명);
   }, []);
 
-  /** Functions */
-  /**console.log(facilities1);
-  console.log(facilities2);*/
+  /** 오브젝트 비었는지 확인 */
+  const isEmptyObj = (obj: object) => {
+    if (obj.constructor === Object && Object.keys(obj).length === 0) {
+      return true;
+    }
 
-  // 시설물 불러오기
-  const getData = async (
-    currentLine: string | undefined,
-    currentStation: string | undefined,
-  ) => {
-    await axios
-      .get(`http://10.0.2.2:3000/api/maps/${currentLine}/${currentStation}`)
+    return false;
+  };
+  const PreNextFacilityBox = (preFacility: object, nextFacility: object) => {
+    let preFacilityList = [];
+    let nextFacilityList = [];
+    setPreStation(preFacility['전철역명']);
+    setNextStation(nextFacility['전철역명']);
+
+    if (preFacility !== null) {
+      for (let key in preFacility) {
+        const value = preFacility[key];
+        if (key === '엘레베이터' && !isEmptyObj(preFacility?.엘레베이터)) {
+          preFacilityList.push([key, value]);
+        } else if (
+          key === '에스컬레이터' &&
+          !isEmptyObj(preFacility?.에스컬레이터)
+        ) {
+          preFacilityList.push([key, value]);
+        } else if (key === '화장실' && !isEmptyObj(preFacility?.화장실)) {
+          preFacilityList.push([key, value]);
+        } else if (
+          key === '장애인화장실' &&
+          !isEmptyObj(preFacility?.장애인화장실)
+        ) {
+          preFacilityList.push([key, value]);
+        }
+      }
+      setPreFacilitiesList(preFacilityList);
+    }
+    if (nextFacility !== null) {
+      for (let key in nextFacility) {
+        const value = nextFacility[key];
+        if (key === '엘레베이터' && !isEmptyObj(nextFacility?.엘레베이터)) {
+          nextFacilityList.push([key, value]);
+        } else if (
+          key === '에스컬레이터' &&
+          !isEmptyObj(nextFacility?.에스컬레이터)
+        ) {
+          nextFacilityList.push([key, value]);
+        } else if (key === '화장실' && !isEmptyObj(nextFacility?.화장실)) {
+          nextFacilityList.push([key, value]);
+        } else if (
+          key === '장애인화장실' &&
+          !isEmptyObj(nextFacility?.장애인화장실)
+        ) {
+          nextFacilityList.push([key, value]);
+        }
+      }
+      setNextFacilitiesList(nextFacilityList);
+    }
+  };
+
+  const getCurrentFacilityData = async (currentStation: string | undefined) => {
+    axios
+      .get(`http://10.0.2.2:3000/api/facility/${currentStation}`)
       .then(function (res: any) {
-        setFacilities1(res.data.전역);
-        setFacilities2(res.data.후역);
-        setPreStation(res.data.전역.전철역명);
-        setNextStation(res.data.후역.전철역명)
+        setCurrentFacilitiesList(res.data.data);
       })
       .catch(function (error: any) {
         console.log(error);
       });
   };
-
+  const getPreNextFacilityData = async (
+    currentLine: string | undefined,
+    currentStation: string | undefined,
+  ) => {
+    axios
+      .get(`http://10.0.2.2:3000/api/maps/${currentLine}/${currentStation}`)
+      .then(function (res: any) {
+        PreNextFacilityBox(res.data.전역, res.data.후역);
+      })
+      .catch(function (error: any) {
+        console.log(error);
+      });
+  };
   return (
     <ContentContainer>
       <ContentHeader>
         <Refresh lat={lat} lon={lon} />
         <LineNumberListContainer>
-          <LineNumberListBox>
+          {/* <LineNumberListBox>
             {lineNumList.map((value: number, index: number) => {
               return (
                 <LineNumberListItem key={index}>{value}</LineNumberListItem>
               );
             })}
           </LineNumberListBox>
-          <LineNumberListBorderBottom />
+          <LineNumberListBorderBottom /> */}
         </LineNumberListContainer>
       </ContentHeader>
       <ContentMain>
@@ -85,34 +156,155 @@ const Content: React.FC<ContentProps> = ({lat, lon}) => {
         </StationContainer>
         <FacilityHeader>역 내 주요 시설</FacilityHeader>
         <FacilityContainer>
-          <BlackText>{stationName}역의 주요 시설물</BlackText>
+          <WhiteText>
+            <PointText>{stationName}역</PointText> 의 주요 시설물
+          </WhiteText>
+          <FacilityView>
+            {currentFacilitiesList.map((value: string, index: number) => {
+              if (value === '엘레베이터') {
+                return (
+                  <FacilityPointIcon
+                    key={index}
+                    source={require('../assets/icons/facility/ElevatorPoint.png')}
+                    alt=""
+                  />
+                );
+              } else if (value === '에스컬레이터') {
+                return (
+                  <FacilityPointIcon
+                    key={index}
+                    source={require('../assets/icons/facility/EscalatorPoint.png')}
+                    alt=""
+                  />
+                );
+              } else if (value === '화장실') {
+                return (
+                  <FacilityPointIcon
+                    key={index}
+                    source={require('../assets/icons/facility/RestroomPoint.png')}
+                    alt=""
+                  />
+                );
+              } else if (value === '장애인화장실') {
+                return (
+                  <FacilityPointIcon
+                    key={index}
+                    source={require('../assets/icons/facility/DisabledPoint.png')}
+                    alt=""
+                  />
+                );
+              }
+            })}
+          </FacilityView>
         </FacilityContainer>
 
-        <Congestion stationName={stationName} BlackText={BlackText} />
+        <Congestion
+          stationName={stationName}
+          WhiteText={WhiteText}
+          BlackText={BlackText}
+        />
         <FacilityPreNextContainer>
           <FacilityBox>
-            <BlackText>{preStation}역의 시설물</BlackText>
-            {/* {facilities1?.map((value: string, index: number) => {
-              return <Text key={index}>{value}</Text>;
-            })} */}
+            <WhiteText>
+              <PointText>{preStation}역</PointText> 의 시설물
+            </WhiteText>
+            <FacilityList>
+              {preFacilitiesList.map((list: any, index: number) => {
+                if (list[0] === '엘레베이터') {
+                  return (
+                    <FacilityIcon
+                      key={index}
+                      source={require('../assets/icons/facility/ElevatorWhite.png')}
+                      alt=""
+                    />
+                  );
+                } else if (list[0] === '에스컬레이터') {
+                  return (
+                    <FacilityIcon
+                      key={index}
+                      source={require('../assets/icons/facility/EscalatorWhite.png')}
+                      alt=""
+                    />
+                  );
+                } else if (list[0] === '화장실') {
+                  return (
+                    <FacilityIcon
+                      key={index}
+                      source={require('../assets/icons/facility/RestroomWhite.png')}
+                      alt=""
+                    />
+                  );
+                } else if (list[0] === '장애인화장실') {
+                  return (
+                    <FacilityIcon
+                      key={index}
+                      source={require('../assets/icons/facility/DisabledWhite.png')}
+                      alt=""
+                    />
+                  );
+                }
+              })}
+            </FacilityList>
           </FacilityBox>
           <FacilityBox>
-            <BlackText>{nextStation}역의 시설물</BlackText>
-            {/* {facilities2.map((value: string, index: number) => {
-              return <Text key={index}>{value}</Text>;
-            })} */}
+            <WhiteText>
+              <PointText>{nextStation}역</PointText> 의 시설물
+            </WhiteText>
+            <FacilityList>
+              {nextFacilitiesList.map((list: any, index: number) => {
+                if (list[0] === '엘레베이터') {
+                  return (
+                    <FacilityIcon
+                      key={index}
+                      source={require('../assets/icons/facility/ElevatorWhite.png')}
+                      alt=""
+                    />
+                  );
+                } else if (list[0] === '에스컬레이터') {
+                  return (
+                    <FacilityIcon
+                      key={index}
+                      source={require('../assets/icons/facility/EscalatorWhite.png')}
+                      alt=""
+                    />
+                  );
+                } else if (list[0] === '화장실') {
+                  return (
+                    <FacilityIcon
+                      key={index}
+                      source={require('../assets/icons/facility/RestroomWhite.png')}
+                      alt=""
+                    />
+                  );
+                } else if (list[0] === '장애인화장실') {
+                  return (
+                    <FacilityIcon
+                      key={index}
+                      source={require('../assets/icons/facility/DisabledWhite.png')}
+                      alt=""
+                    />
+                  );
+                }
+              })}
+            </FacilityList>
           </FacilityBox>
         </FacilityPreNextContainer>
       </ContentMain>
     </ContentContainer>
   );
 };
+const WhiteText = styled.Text`
+  color: white;
+`;
 const BlackText = styled.Text`
   color: black;
 `;
+const PointText = styled.Text`
+  color: #00ffd1;
+`;
 const ContentContainer = styled.View`
   width: 100%;
-  height: 78%;
+  height: 79%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -121,17 +313,20 @@ const ContentHeader = styled.View`
   width: 100%;
 `;
 const LineNumberListContainer = styled.View`
-  height: 40px;
+  height: 20px;
   width: 100%;
 `;
 const LineNumberListBox = styled.View`
   display: flex;
   flex-direction: row;
+  margin-left: 15px;
 `;
 const LineNumberListItem = styled.Text`
-  width: 40px;
-  height: 40px;
-  border: 1px solid black;
+  width: 35px;
+  height: 35px;
+  border: 1px solid white;
+  margin: 2px;
+  color: white;
 `;
 const LineNumberListBorderBottom = styled.View`
   height: 2px;
@@ -182,7 +377,7 @@ const FacilityHeader = styled.Text`
 `;
 const FacilityContainer = styled.View`
   width: 100%;
-  border: 1px solid black;
+  border: 1px solid white;
   border-radius: 15px;
   height: 95px;
   margin-top: 5px;
@@ -190,6 +385,14 @@ const FacilityContainer = styled.View`
   flex-direction: column;
   align-items: center;
   padding-top: 5px;
+`;
+const FacilityView = styled.View`
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  height: 63%;
 `;
 const FacilityPreNextContainer = styled.View`
   display: flex;
@@ -203,8 +406,26 @@ const FacilityBox = styled.View`
   height: 95px;
   display: flex;
   align-items: center;
-  border: 1px solid black;
+  border: 1px solid white;
   border-radius: 15px;
   padding-top: 5px;
+`;
+const FacilityList = styled.View`
+  width: 50%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 5px;
+`;
+const FacilityIcon = styled.Image`
+  width: 23px;
+  height: 23px;
+`;
+const FacilityPointIcon = styled.Image`
+  width: 32px;
+  height: 32px;
 `;
 export default Content;
