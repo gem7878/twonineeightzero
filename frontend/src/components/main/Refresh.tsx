@@ -12,7 +12,7 @@ const Refresh: React.FC<RefreshProps> = ({lat, lon}) => {
     <RefreshContainer>
       <RefreshText>현재위치 : </RefreshText>
       <RefreshText>강서구 방화동{/* lat: {lat}, lon: {lon} */}</RefreshText>
-      <Image source={require('../../assets/icons/Refresh.png')} />
+      <Image source={require('../../assets/icons/Refresh.png')} alt='' />
     </RefreshContainer>
   );
 };
