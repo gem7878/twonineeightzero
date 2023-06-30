@@ -6,10 +6,15 @@ import {
   NativeSyntheticEvent,
   TextInput,
   Image,
+  TouchableOpacity,
 } from 'react-native';
 import styled from 'styled-components/native';
 
-const LandingScreen = () => {
+interface Props {
+  navigation: any;
+}
+
+const LandingScreen: React.FC<Props> = ({navigation}) => {
   const [stationName, setStationName] = useState('');
   useEffect(() => {
     setStationName('운양역');
@@ -28,7 +33,9 @@ const LandingScreen = () => {
             placeholderTextColor="white"
             onChangeText={value => setStationName(value)}
           />
-          <Image source={require('../assets/icons/SearchIcon.png')} />
+          <TouchableOpacity onPress={() => navigation.navigate('Friends')}>
+            <Image source={require('../assets/icons/SearchIcon.png')} />
+          </TouchableOpacity>
         </StationInputBox>
         <LandingText>을</LandingText>
       </LandingTop>
