@@ -1,21 +1,32 @@
 import React from 'react';
-import {Image} from 'react-native';
+import {Image, TouchableOpacity} from 'react-native';
 import styled from 'styled-components/native';
 
 interface Props {
   stationName: any;
   stationNum: any;
+  navigation: any;
 }
 
-const Search: React.FC<Props> = ({stationName, stationNum}) => {
+const Search: React.FC<Props> = ({ stationName, stationNum, navigation }) => {
   return (
     <SearchContainer>
       <SearchBox>
         <SearchInput placeholder={`'${stationName}, ${stationNum}' 검색하기`} />
-        <Image
-          source={require('../assets/icons/Search.png')}
-          resizeMode="contain"
-        />
+        <TouchableOpacity 
+            // onPress={() =>
+            //   navigation.navigate('Main', {
+            //     lat: lat,
+            //     lon: lon,
+            //     stationName: stationName,
+            //     stationNum: stationNum,
+            //   })
+        // }
+        >
+            <Image
+              source={require('../assets/icons/Search.png')}
+              resizeMode="contain"
+            /></TouchableOpacity>
       </SearchBox>
     </SearchContainer>
   );
