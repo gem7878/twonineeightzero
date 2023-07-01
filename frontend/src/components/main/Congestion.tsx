@@ -39,8 +39,7 @@ const Congestion: React.FC<CongestionProps> = ({
         setCongestion(res.data[0]['혼잡도'][2][1]);
       });
   };
-  console.log(data);
-  
+
   return (
     <CongestionContainer>
       <WhiteText>역 내 혼잡도</WhiteText>

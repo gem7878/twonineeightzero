@@ -9,14 +9,18 @@ interface Props {
 const MainScreen: React.FC<Props> = ({route}) => {
   return (
     <MainContainer>
-      <Search stations={route.params.stations} />
+      <Search
+        stationName={route.params.stationName}
+        stationNum={route.params.stationNum}
+      />
       <Content
         lat={route.params.lat}
         lon={route.params.lon}
-        stations={route.params.stations}
+        searchStationName={route.params.stationName}
+        searchStationNum={route.params.stationNum}
       />
       <Maps />
-      <GuideFooter />
+      {/* <GuideFooter /> */}
     </MainContainer>
   );
 };
