@@ -1,28 +1,63 @@
-import { KAKAO_API_KEY } from './secrets';
+import {KAKAO_API_KEY} from './secrets';
 
-const API_BASE_URL: string = 'https://dapi.kakao.com/v2/local/search/category.json';
+const API_BASE_URL1: string =
+  'https://dapi.kakao.com/v2/local/search/category.json';
+const API_BASE_URL2: string = 'https://dapi.kakao.com/v2/local/geo/coord2regioncode.json';
 
-async function searchSubwayStations(longitude: Number, latitude: Number): Promise<any[]> {
+async function searchSubwayStations(
+  longitude: Number,
+  latitude: Number,
+): Promise<any[]> {
   try {
     const size = 5;
-    const response = await fetch(`${API_BASE_URL}?category_group_code=SW8&x=${longitude}&y=${latitude}&radius=3000&size=${size}&sort=accuracy`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `KakaoAK ${KAKAO_API_KEY}`,
+    const response = await fetch(
+      `${API_BASE_URL1}?category_group_code=SW8&x=${longitude}&y=${latitude}&radius=3000&size=${size}&sort=accuracy`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `KakaoAK ${KAKAO_API_KEY}`,
+        },
       },
-    });
-
+    );
     if (!response.ok) {
-      throw new Error('API 요청 중 오류가 발생했습니다.');
+      throw new Error('Station API 요청 중 오류가 발생했습니다.');
     }
 
     const data = await response.json();
     const subwayStations: any[] = data.documents;
     return subwayStations;
   } catch (error) {
-    console.error('API 요청 중 오류가 발생했습니다:', error);
+    console.error('Station API 요청 중 오류가 발생했습니다:', error);
     return [];
   }
 }
 
-export default searchSubwayStations;
+async function searchAdress(
+  longitude: Number,
+  latitude: Number,
+): Promise<string> {
+  try {
+    const response = await fetch(
+      `${API_BASE_URL2}?x=${longitude}&y=${latitude}`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `KakaoAK ${KAKAO_API_KEY}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Address API 요청 중 오류가 발생했습니다.');
+    }
+
+    const data = await response.json();
+    const Address: any[] = data.documents;
+    console.log(Address);
+    return Address[0].region_3depth_name;
+  } catch (error) {
+    console.error('Address API 요청 중 오류가 발생했습니다:', error);
+    return '';
+  }
+}
+
+export {searchSubwayStations, searchAdress};
