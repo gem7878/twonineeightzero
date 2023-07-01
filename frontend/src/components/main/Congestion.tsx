@@ -26,16 +26,21 @@ const Congestion: React.FC<CongestionProps> = ({
 
   useEffect(() => {
     getData(stationName);
-  }, []);
+  }, [stationName]);
 
   const getData = (station: string | undefined) => {
     axios
-      .get(`http://10.0.2.2:3000/cong/congestion/${station}`)
+      .get(
+        `https://twonineeightzero-58c53d83021d.herokuapp.com/cong/congestion/${station}`,
+      )
       .then(function (res: any) {
+        console.log(res.data);
         setData(res.data[0]['혼잡도']);
         setCongestion(res.data[0]['혼잡도'][2][1]);
       });
   };
+  console.log(data);
+  
   return (
     <CongestionContainer>
       <WhiteText>역 내 혼잡도</WhiteText>

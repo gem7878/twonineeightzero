@@ -7,6 +7,7 @@ import {Congestion, Refresh} from './index';
 interface ContentProps {
   lat: Number;
   lon: Number;
+  stations: any;
 }
 
 interface IFDetail {
@@ -28,21 +29,32 @@ export interface IFacility {
   에스컬레이터: IFlocation | null;
   엘레베이터: IFlocation | null;
 }
-const Content: React.FC<ContentProps> = ({lat, lon}) => {
+const Content: React.FC<ContentProps> = ({lat, lon, stations}) => {
   const [currentFacilitiesList, setCurrentFacilitiesList] = useState<any>([]);
   const [preFacilitiesList, setPreFacilitiesList] = useState<any>([]);
   const [nextFacilitiesList, setNextFacilitiesList] = useState<any>([]);
 
-  const [stationName, setStationName] = useState<string>('김포공항');
+  const [stationName, setStationName] = useState<string>('');
   const [preStation, setPreStation] = useState<string>('');
   const [nextStation, setNextStation] = useState<string>('');
-  const [lineNumList, setLineNumList] = useState<number[]>([1, 2, 5]);
-  const [current, setCurrent] = useState({호선: '5', 역명: '김포공항'});
+  // const [lineNumList, setLineNumList] = useState<number[]>([1, 2, 5]);
+  const [current, setCurrent] = useState({호선: '', 역명: ''});
 
   useEffect(() => {
-    getPreNextFacilityData(current.호선, current.역명);
-    getCurrentFacilityData(current.역명);
-  }, []);
+    let currentStation = stations[0][0];
+    let currentStationNum = stations[0][1];
+    const splitStation = stations[0][0].split('');
+    if (splitStation[splitStation.length - 1] === '역') {
+      currentStation = currentStation.slice(0, -1);
+      currentStationNum = currentStationNum.slice(0, -2);
+      setStationName(currentStation);
+      setCurrent({호선: currentStationNum, 역명: currentStation});
+    } else {
+      setStationName(currentStation);
+    }
+    getPreNextFacilityData(currentStationNum, currentStation);
+    getCurrentFacilityData(currentStation);
+  }, [stations]);
 
   /** 오브젝트 비었는지 확인 */
   const isEmptyObj = (obj: object) => {
@@ -55,6 +67,7 @@ const Content: React.FC<ContentProps> = ({lat, lon}) => {
   const PreNextFacilityBox = (preFacility: object, nextFacility: object) => {
     let preFacilityList = [];
     let nextFacilityList = [];
+    
     setPreStation(preFacility['전철역명']);
     setNextStation(nextFacility['전철역명']);
 
@@ -104,7 +117,9 @@ const Content: React.FC<ContentProps> = ({lat, lon}) => {
 
   const getCurrentFacilityData = async (currentStation: string | undefined) => {
     axios
-      .get(`http://10.0.2.2:3000/api/facility/${currentStation}`)
+      .get(
+        `https://twonineeightzero-58c53d83021d.herokuapp.com/api/facility/${currentStation}`,
+      )
       .then(function (res: any) {
         setCurrentFacilitiesList(res.data.data);
       })
@@ -117,7 +132,9 @@ const Content: React.FC<ContentProps> = ({lat, lon}) => {
     currentStation: string | undefined,
   ) => {
     axios
-      .get(`http://10.0.2.2:3000/api/maps/${currentLine}/${currentStation}`)
+      .get(
+        `https://twonineeightzero-58c53d83021d.herokuapp.com/api/maps/${currentLine}/${currentStation}`,
+      )
       .then(function (res: any) {
         PreNextFacilityBox(res.data.전역, res.data.후역);
       })
@@ -147,7 +164,9 @@ const Content: React.FC<ContentProps> = ({lat, lon}) => {
             <StationText>{preStation}</StationText>
           </StationBox>
           <StationMainBox>
-            <BlackText>5 {stationName}</BlackText>
+            <BlackText>
+              {current.호선} {stationName}
+            </BlackText>
           </StationMainBox>
           <StationBox>
             <StationText>{nextStation}</StationText>
@@ -344,7 +363,7 @@ const StationContainer = styled.View`
   justify-content: space-between;
   padding: 0 20px;
   margin-top: 20px;
-  background-color: purple;
+  background-color: #00ffd1;
   border-radius: 20px;
 `;
 const StationBox = styled.View`
@@ -356,7 +375,7 @@ const StationBox = styled.View`
   justify-content: center;
 `;
 const StationText = styled.Text`
-  color: white;
+  color: black;
 `;
 const StationMainBox = styled.View`
   width: 40%;
@@ -366,7 +385,7 @@ const StationMainBox = styled.View`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border: 5px solid purple;
+  border: 5px solid #00ffd1;
   border-radius: 20px;
   background-color: white;
 `;
