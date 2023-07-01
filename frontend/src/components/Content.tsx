@@ -2,12 +2,13 @@ import axios from 'axios';
 import React, {useEffect, useState, useRef} from 'react';
 import {Image, Text, View} from 'react-native';
 import styled from 'styled-components/native';
-import {Congestion, Refresh} from './index';
+import {Congestion, GuideFooter, Refresh} from './index';
 
 interface ContentProps {
   lat: Number;
   lon: Number;
-  stations: any;
+  searchStationName: any;
+  searchStationNum: any;
 }
 
 interface IFDetail {
@@ -29,7 +30,12 @@ export interface IFacility {
   에스컬레이터: IFlocation | null;
   엘레베이터: IFlocation | null;
 }
-const Content: React.FC<ContentProps> = ({lat, lon, stations}) => {
+const Content: React.FC<ContentProps> = ({
+  lat,
+  lon,
+  searchStationName,
+  searchStationNum,
+}) => {
   const [currentFacilitiesList, setCurrentFacilitiesList] = useState<any>([]);
   const [preFacilitiesList, setPreFacilitiesList] = useState<any>([]);
   const [nextFacilitiesList, setNextFacilitiesList] = useState<any>([]);
@@ -41,9 +47,9 @@ const Content: React.FC<ContentProps> = ({lat, lon, stations}) => {
   const [current, setCurrent] = useState({호선: '', 역명: ''});
 
   useEffect(() => {
-    let currentStation = stations[0][0];
-    let currentStationNum = stations[0][1];
-    const splitStation = stations[0][0].split('');
+    let currentStation = searchStationName;
+    let currentStationNum = searchStationNum;
+    const splitStation = searchStationName.split('');
     if (splitStation[splitStation.length - 1] === '역') {
       currentStation = currentStation.slice(0, -1);
       currentStationNum = currentStationNum.slice(0, -2);
@@ -54,7 +60,7 @@ const Content: React.FC<ContentProps> = ({lat, lon, stations}) => {
     }
     getPreNextFacilityData(currentStationNum, currentStation);
     getCurrentFacilityData(currentStation);
-  }, [stations]);
+  }, []);
 
   /** 오브젝트 비었는지 확인 */
   const isEmptyObj = (obj: object) => {
@@ -67,7 +73,7 @@ const Content: React.FC<ContentProps> = ({lat, lon, stations}) => {
   const PreNextFacilityBox = (preFacility: object, nextFacility: object) => {
     let preFacilityList = [];
     let nextFacilityList = [];
-    
+
     setPreStation(preFacility['전철역명']);
     setNextStation(nextFacility['전철역명']);
 
@@ -309,6 +315,7 @@ const Content: React.FC<ContentProps> = ({lat, lon, stations}) => {
           </FacilityBox>
         </FacilityPreNextContainer>
       </ContentMain>
+      <GuideFooter></GuideFooter>
     </ContentContainer>
   );
 };
@@ -323,9 +330,10 @@ const PointText = styled.Text`
 `;
 const ContentContainer = styled.View`
   width: 100%;
-  height: 79%;
+  height: 89%;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   align-items: center;
 `;
 const ContentHeader = styled.View`
