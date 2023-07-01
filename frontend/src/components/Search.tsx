@@ -2,11 +2,15 @@ import React from 'react';
 import {Image} from 'react-native';
 import styled from 'styled-components/native';
 
-const Search = () => {
+interface Props {
+  stations: any;
+}
+
+const Search: React.FC<Props> = ({stations}) => {
   return (
     <SearchContainer>
       <SearchBox>
-        <SearchInput placeholder="'운양역' 검색하기" />
+        <SearchInput placeholder={`'${stations[0][0]}' 검색하기`} />
         <Image
           source={require('../assets/icons/Search.png')}
           resizeMode="contain"

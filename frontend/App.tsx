@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {View} from 'react-native';
 import {LandingScreen, MainScreen} from './src/screens/index';
 import {createStackNavigator} from '@react-navigation/stack';
