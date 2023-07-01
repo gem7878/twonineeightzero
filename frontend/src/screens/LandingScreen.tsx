@@ -29,11 +29,14 @@ const LandingScreen: React.FC<Props> = ({navigation}) => {
       <LandingTop>
         <StationInputBox>
           <StationTextInput
+            autoCorrect={false}
+            autoCapitalize="none"
+            keyboardType="visible-password"
             placeholder={'운양역'}
             placeholderTextColor="white"
             onChangeText={value => setStationName(value)}
           />
-          <TouchableOpacity onPress={() => navigation.navigate('Friends')}>
+          <TouchableOpacity onPress={() => navigation.navigate('Main')}>
             <Image source={require('../assets/icons/SearchIcon.png')} />
           </TouchableOpacity>
         </StationInputBox>
