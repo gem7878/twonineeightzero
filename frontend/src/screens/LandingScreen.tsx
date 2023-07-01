@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Image, TouchableOpacity} from 'react-native';
+import {Button, Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import styled from 'styled-components/native';
 import Geolocation from '@react-native-community/geolocation';
 import {searchSubwayStations} from '../apis/service/kakaoClient'; // 카카오API
@@ -10,9 +10,12 @@ interface Props {
 
 const LandingScreen: React.FC<Props> = ({navigation}) => {
   const [stationName, setStationName] = useState('');
+  const [stationNum, setStationNum] = useState('');
   const [lat, setLat] = useState(Number);
   const [lon, setLon] = useState(Number);
   const [stations, setStations] = useState([]); // 경도 위도에 따른 지하철역 검색 결과
+  const [inputName, setInputName] = useState('');
+  const [heverIndex, setHoverIndex] = useState(-1);
 
   useEffect(() => {
     Geolocation.getCurrentPosition(
@@ -54,6 +57,7 @@ const LandingScreen: React.FC<Props> = ({navigation}) => {
   useEffect(() => {
     if (stations.length > 0) {
       setStationName(stations[0][0]);
+      setStationNum(stations[0][1]);
     }
   }, [stations]);
   console.log(stationName);
@@ -61,30 +65,105 @@ const LandingScreen: React.FC<Props> = ({navigation}) => {
   return (
     <LandingContainer>
       <LandingTop>
+        <LandingText>'역이름, 호선' 형식에 맞게 검색하시오.</LandingText>
         <StationInputBox>
           <StationTextInput
-            placeholder={stationName}
+            placeholder={`${stationName}, ${stationNum}`}
             placeholderTextColor="white"
-            onChangeText={value => setStationName(value)}
+            onChangeText={value => {
+              console.log(value);
+              setInputName(value);
+              // setStationName(value)
+            }}
+            value={''}
           />
           <TouchableOpacity
             onPress={() =>
               navigation.navigate('Main', {
                 lat: lat,
                 lon: lon,
-                stations: stations,
+                stationName: stationName,
+                stationNum: stationNum,
               })
             }>
-            <Image source={require('../assets/icons/SearchIcon.png')} />
+            <SearchIcon source={require('../assets/icons/SearchIcon.png')} />
           </TouchableOpacity>
         </StationInputBox>
-        <LandingText>을</LandingText>
       </LandingTop>
-      <LandingText>검색하시오</LandingText>
+      <SuggestionView>
+        {stations.map((value: any, index: number) => {
+          const hoverStyle =
+            heverIndex === index ? styles.buttonPressed : styles.button;
+          if (index === stations.length - 1) {
+            return (
+              <SuggestionBtnLast
+                key={index}
+                onPressIn={() => {
+                  setHoverIndex(index);
+                  setStationName(value[0]);
+                  setStationNum(value[1]);
+                }}
+                style={hoverStyle}>
+                <SuggestionText>
+                  {value[0]}, {value[1]}
+                </SuggestionText>
+              </SuggestionBtnLast>
+            );
+          } else {
+            return (
+              <SuggestionBtn
+                key={index}
+                onPressIn={() => {
+                  setHoverIndex(index);
+                  setStationName(value[0]);
+                  setStationNum(value[1]);
+                }}
+                style={hoverStyle}>
+                <SuggestionText>
+                  {value[0]}, {value[1]}
+                </SuggestionText>
+              </SuggestionBtn>
+            );
+          }
+        })}
+      </SuggestionView>
       {/* <LandingBottom>지하철 노선도 바로가기</LandingBottom> */}
     </LandingContainer>
   );
 };
+const styles = StyleSheet.create({
+  button: {
+
+  },
+  buttonPressed: {
+    backgroundColor: '#00ffd042',
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+});
+
+const SuggestionView = styled.View`
+  border: 1px solid #00ffd1;
+  background-color: white;
+  width: 290px;
+  padding: 10px 0;
+`;
+const SuggestionBtn = styled.TouchableOpacity`
+  padding: 10px;
+  border-bottom-color: #4646463b;
+  border-bottom-width: 1;
+  padding-left: 17px;
+`;
+const SuggestionBtnLast = styled.TouchableOpacity`
+  padding: 10px;
+  padding-left: 17px;
+`
+const SuggestionText = styled.Text`
+  color: black;
+`;
 const LandingContainer = styled.View`
   height: 100%;
   display: flex;
@@ -94,35 +173,35 @@ const LandingContainer = styled.View`
 `;
 const LandingTop = styled.View`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
-  margin-bottom: 50px;
+  margin-bottom: 2px;
+  margin-top: 50px;
 `;
 const LandingText = styled.Text`
-  font-size: 30px;
+  font-size: 17px;
   color: white;
+  margin-bottom: 15px;
 `;
 const StationInputBox = styled.View`
   border: 1px solid #00ffd1;
-  width: 240px;
+  width: 290px;
   height: 72px;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  margin-right: 15px;
   padding-right: 10px;
 `;
 const StationTextInput = styled.TextInput`
   height: 100%;
-  font-size: 30px;
-  padding-left: 20px;
+  font-size: 20px;
+  padding-left: 15px;
   color: white;
 `;
-const LandingBottom = styled.Text`
-  color: #7e7e7e;
-  font-size: 18px;
-  margin-top: 15px;
-`;
+const SearchIcon = styled.Image`
+  width: 35px;
+  height: 35px;
+`
 
 export default LandingScreen;
