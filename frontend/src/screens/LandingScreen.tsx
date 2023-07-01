@@ -47,7 +47,6 @@ const LandingScreen: React.FC<Props> = ({navigation}) => {
       });
 
       setStations(stations as never[]);
-      console.log(stations);
     };
 
     if (lon !== 0 && lat !== 0) {
@@ -60,7 +59,19 @@ const LandingScreen: React.FC<Props> = ({navigation}) => {
       setStationNum(stations[0][1]);
     }
   }, [stations]);
-  console.log(stationName);
+
+  const searchInputText = (value: string) => {
+    setInputName(value);
+    const valueSplit = value.split(/,| /);
+    let tmp = [];
+    for (let i = 0; i < valueSplit.length; i++) {
+      if (valueSplit[i].length > 0) {
+        tmp.push(valueSplit[i]);
+      }
+    }
+    setStationName(tmp[0]);
+    setStationNum(tmp[1]);
+  };
 
   return (
     <LandingContainer>
@@ -71,11 +82,9 @@ const LandingScreen: React.FC<Props> = ({navigation}) => {
             placeholder={`${stationName}, ${stationNum}`}
             placeholderTextColor="white"
             onChangeText={value => {
-              console.log(value);
-              setInputName(value);
-              // setStationName(value)
+              searchInputText(value);
             }}
-            value={''}
+            value={inputName}
           />
           <TouchableOpacity
             onPress={() =>
