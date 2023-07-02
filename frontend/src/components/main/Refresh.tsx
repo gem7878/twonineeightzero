@@ -6,21 +6,17 @@ interface RefreshProps {
   lat: any;
   lon: any;
 }
-
 const Refresh: React.FC<RefreshProps> = ({lat, lon}) => {
 
   const [location, setLocation] = useState('');
-  console.log(location);
-  
-
-  useEffect(() => { // 경도 위도에 따른 행정구역정보 받기
+  useEffect(() => {
+    // 경도 위도에 따른 행정구역정보 받기
     const handleLocation = async () => {
       const roundedLongitude = Number(lon.toFixed(6));
       const roundedLatitude = Number(lat.toFixed(6));
       const result = await searchAdress(roundedLongitude, roundedLatitude);
 
       setLocation(result);
-      console.log(location);
 
     };
 

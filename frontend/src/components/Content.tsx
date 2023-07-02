@@ -1,6 +1,5 @@
 import axios from 'axios';
-import React, {useEffect, useState, useRef} from 'react';
-import {Image, Text, View} from 'react-native';
+import React, {useEffect, useState} from 'react';
 import styled from 'styled-components/native';
 import {Congestion, GuideFooter, Refresh} from './index';
 
@@ -60,7 +59,7 @@ const Content: React.FC<ContentProps> = ({
     }
     getPreNextFacilityData(currentStationNum, currentStation);
     getCurrentFacilityData(currentStation);
-  }, []);
+  }, [searchStationName, searchStationNum]);
 
   /** 오브젝트 비었는지 확인 */
   const isEmptyObj = (obj: object) => {
@@ -315,7 +314,7 @@ const Content: React.FC<ContentProps> = ({
           </FacilityBox>
         </FacilityPreNextContainer>
       </ContentMain>
-      <GuideFooter></GuideFooter>
+      <GuideFooter />
     </ContentContainer>
   );
 };
