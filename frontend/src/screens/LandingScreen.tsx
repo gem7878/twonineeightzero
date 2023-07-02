@@ -1,8 +1,9 @@
 import React, {useEffect, useState} from 'react';
-import {Button, Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {Alert, Button, Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import styled from 'styled-components/native';
 import Geolocation from '@react-native-community/geolocation';
 import {searchSubwayStations} from '../apis/service/kakaoClient'; // 카카오API
+import axios from 'axios';
 
 interface Props {
   navigation: any;
@@ -53,6 +54,8 @@ const LandingScreen: React.FC<Props> = ({navigation}) => {
       handleSearch();
     }
   }, [lat, lon]);
+
+
   useEffect(() => {
     if (stations.length > 0) {
       setStationName(stations[0][0]);
@@ -73,6 +76,50 @@ const LandingScreen: React.FC<Props> = ({navigation}) => {
     setStationNum(tmp[1]);
   };
 
+  // 검색어 확인하기
+  const checkSearchWord = async () => {
+    let results = '';
+    await axios
+      .get(
+        `https://twonineeightzero-58c53d83021d.herokuapp.com/api/stationLine/${stationNum}/${stationName}`,
+      )
+      .then(function (res: any) {
+        if(res.data.success == true) {
+          const difference = [5,6,7,8,9].filter(x => res.data.results.includes(Number(x))); // 지원하는 호선과 겹치는 데이터
+          if([5,6,7,8,9].includes(Number(stationNum))) {
+            results = 'true';
+          } else if (difference.length > 0) {
+            results =  ('검색하신 역은 ' + difference + '호선만 지원합니다.');
+          } else {
+            results =  ('아직 5호선~8호선만 지원합니다.')
+          }
+        }
+        else {
+          const difference = [5,6,7,8,9].filter(x => res.data.results.includes(Number(x))); // 지원하는 호선과 겹치는 데이터
+          if (difference.length > 0) {
+            results =  ('검색하신 역은 ' + res.data.results + '호선만 있고, ' + difference + '호선만 지원합니다.');
+          } else {
+            results =  ('검색하신 역은 현재 지원하지 않습니다. 5호선~8호선의 역을 검색해주세요.');
+          }
+        }
+      })
+      .catch(function (error: any) {
+        console.log(error);
+      });
+      if (results != 'true') {
+        Alert.alert('다시 검색하세요.', results, [
+          {text: 'OK', onPress: () => console.log('OK Pressed')},
+        ]);
+      } else {
+        navigation.navigate('Main', {
+          lat: lat,
+          lon: lon,
+          stationName: stationName,
+          stationNum: stationNum,
+        })
+      }
+  };
+
   return (
     <LandingContainer>
       <LandingTop>
@@ -86,15 +133,7 @@ const LandingScreen: React.FC<Props> = ({navigation}) => {
             }}
             value={inputName}
           />
-          <TouchableOpacity
-            onPress={() =>
-              navigation.navigate('Main', {
-                lat: lat,
-                lon: lon,
-                stationName: stationName,
-                stationNum: stationNum,
-              })
-            }>
+          <TouchableOpacity onPress={checkSearchWord}>
             <SearchIcon source={require('../assets/icons/SearchIcon.png')} />
           </TouchableOpacity>
         </StationInputBox>
