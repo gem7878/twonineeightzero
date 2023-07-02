@@ -41,20 +41,18 @@ const LandingScreen: React.FC<Props> = ({navigation}) => {
         roundedLongitude,
         roundedLatitude,
       );
-      const stations: Array<any> = [];
+      const stationsTmp: Array<any> = [];
       result.forEach((value, index) => {
         //console.log(index+1, value.place_name.split(' ')) //값이 "구산역 6호선" ['구산역', '6호선']
-        stations.push(value.place_name.split(' '));
+        stationsTmp.push(value.place_name.split(' '));
       });
-
-      setStations(stations as never[]);
+      setStations(stationsTmp as never[]);
     };
 
     if (lon !== 0 && lat !== 0) {
       handleSearch();
     }
   }, [lat, lon]);
-
 
   useEffect(() => {
     if (stations.length > 0) {
@@ -79,45 +77,58 @@ const LandingScreen: React.FC<Props> = ({navigation}) => {
   // 검색어 확인하기
   const checkSearchWord = async () => {
     let results = '';
+    let replaceStationName = stationName.replace('역', '');
+    let replaceStationNum = Number(stationNum.replace('호선', ''));
+
     await axios
       .get(
-        `https://twonineeightzero-58c53d83021d.herokuapp.com/api/stationLine/${stationNum}/${stationName}`,
+        `https://twonineeightzero-58c53d83021d.herokuapp.com/api/stationLine/${replaceStationNum}/${replaceStationName}`,
       )
       .then(function (res: any) {
-        if(res.data.success == true) {
-          const difference = [5,6,7,8,9].filter(x => res.data.results.includes(Number(x))); // 지원하는 호선과 겹치는 데이터
-          if([5,6,7,8,9].includes(Number(stationNum))) {
+        if (res.data.success === true) {
+          const difference = ['5', '6', '7', '8'].filter(x => {
+            return res.data.result.includes(x);
+          }); // 지원하는 호선과 겹치는 데이터
+
+          if ([5, 6, 7, 8].includes(replaceStationNum)) {
             results = 'true';
           } else if (difference.length > 0) {
-            results =  ('검색하신 역은 ' + difference + '호선만 지원합니다.');
+            results = '검색하신 역은 ' + difference + '호선만 지원합니다.';
           } else {
-            results =  ('아직 5호선~8호선만 지원합니다.')
+            results = '아직 5호선~8호선만 지원합니다.';
           }
-        }
-        else {
-          const difference = [5,6,7,8,9].filter(x => res.data.results.includes(Number(x))); // 지원하는 호선과 겹치는 데이터
+        } else {
+          const difference = ['5', '6', '7', '8'].filter(x => {
+            return res.data.result.includes(x);
+          }); // 지원하는 호선과 겹치는 데이터
           if (difference.length > 0) {
-            results =  ('검색하신 역은 ' + res.data.results + '호선만 있고, ' + difference + '호선만 지원합니다.');
+            results =
+              '검색하신 역은 ' +
+              res.data.results +
+              '호선만 있고, ' +
+              difference +
+              '호선만 지원합니다.';
           } else {
-            results =  ('검색하신 역은 현재 지원하지 않습니다. 5호선~8호선의 역을 검색해주세요.');
+            results =
+              '검색하신 역은 현재 지원하지 않습니다. 5호선~8호선의 역을 검색해주세요.';
           }
         }
       })
       .catch(function (error: any) {
         console.log(error);
       });
-      if (results != 'true') {
-        Alert.alert('다시 검색하세요.', results, [
-          {text: 'OK', onPress: () => console.log('OK Pressed')},
-        ]);
-      } else {
-        navigation.navigate('Main', {
-          lat: lat,
-          lon: lon,
-          stationName: stationName,
-          stationNum: stationNum,
-        })
-      }
+    if (results !== 'true') {
+      Alert.alert('다시 검색하세요.', results, [
+        {text: 'OK', onPress: () => console.log('OK Pressed')},
+      ]);
+    } else {
+      navigation.navigate('Main', {
+        lat: lat,
+        lon: lon,
+        stationName: stationName,
+        stationNum: stationNum,
+      });
+    }
   };
 
   return (
@@ -180,9 +191,7 @@ const LandingScreen: React.FC<Props> = ({navigation}) => {
   );
 };
 const styles = StyleSheet.create({
-  button: {
-
-  },
+  button: {},
   buttonPressed: {
     backgroundColor: '#00ffd042',
   },
@@ -202,13 +211,13 @@ const SuggestionView = styled.View`
 const SuggestionBtn = styled.TouchableOpacity`
   padding: 10px;
   border-bottom-color: #4646463b;
-  border-bottom-width: 1;
+  border-bottom-width: 1px;
   padding-left: 17px;
 `;
 const SuggestionBtnLast = styled.TouchableOpacity`
   padding: 10px;
   padding-left: 17px;
-`
+`;
 const SuggestionText = styled.Text`
   color: black;
 `;
@@ -250,6 +259,6 @@ const StationTextInput = styled.TextInput`
 const SearchIcon = styled.Image`
   width: 35px;
   height: 35px;
-`
+`;
 
 export default LandingScreen;
