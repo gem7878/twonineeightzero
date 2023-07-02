@@ -70,7 +70,7 @@ const Content: React.FC<ContentProps> = ({
 
     return false;
   };
-  const PreNextFacilityBox = (preFacility: object, nextFacility: object) => {
+  const PreNextFacilityBox = (preFacility: any, nextFacility: any) => {
     let preFacilityList = [];
     let nextFacilityList = [];
 
