@@ -1,32 +1,61 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {Image, TouchableOpacity} from 'react-native';
 import styled from 'styled-components/native';
 
 interface Props {
+  lat: Number;
+  lon: Number;
   stationName: any;
   stationNum: any;
   navigation: any;
 }
 
-const Search: React.FC<Props> = ({ stationName, stationNum, navigation }) => {
+const Search: React.FC<Props> = ({
+  lat,
+  lon,
+  stationName,
+  stationNum,
+  navigation,
+}) => {
+  const [inputName, setInputName] = useState('');
+  const [newStationName, setNewStationName] = useState('');
+  const [newStationNum, setNewStationNum] = useState('');
+  const searchInputText = (value: string) => {
+    setInputName(value);
+    const valueSplit = value.split(/,| /);
+    let tmp = [];
+    for (let i = 0; i < valueSplit.length; i++) {
+      if (valueSplit[i].length > 0) {
+        tmp.push(valueSplit[i]);
+      }
+    }
+    setNewStationName(tmp[0]);
+    setNewStationNum(tmp[1]);
+  };
   return (
     <SearchContainer>
       <SearchBox>
-        <SearchInput placeholder={`'${stationName}, ${stationNum}' 검색하기`} />
-        <TouchableOpacity 
-            // onPress={() =>
-            //   navigation.navigate('Main', {
-            //     lat: lat,
-            //     lon: lon,
-            //     stationName: stationName,
-            //     stationNum: stationNum,
-            //   })
-        // }
-        >
-            <Image
-              source={require('../assets/icons/Search.png')}
-              resizeMode="contain"
-            /></TouchableOpacity>
+        <SearchInput
+          onChangeText={value => {
+            searchInputText(value);
+          }}
+          placeholder={`'${stationName}, ${stationNum}' 검색하기`}
+          value={inputName}
+        />
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate('Main', {
+              lat: lat,
+              lon: lon,
+              stationName: newStationName,
+              stationNum: newStationNum,
+            })
+          }>
+          <Image
+            source={require('../assets/icons/Search.png')}
+            resizeMode="contain"
+          />
+        </TouchableOpacity>
       </SearchBox>
     </SearchContainer>
   );

@@ -34,7 +34,6 @@ const Congestion: React.FC<CongestionProps> = ({
         `https://twonineeightzero-58c53d83021d.herokuapp.com/cong/congestion/${station}`,
       )
       .then(function (res: any) {
-        console.log(res.data);
         setData(res.data[0]['혼잡도']);
         setCongestion(res.data[0]['혼잡도'][2][1]);
       });

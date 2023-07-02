@@ -4,14 +4,18 @@ import styled from 'styled-components/native';
 import {Search, Maps, GuideFooter, Content} from '../components/index';
 interface Props {
   route: any;
+  navigation: any;
 }
 
-const MainScreen: React.FC<Props> = ({route}) => {
+const MainScreen: React.FC<Props> = ({route, navigation}) => {
   return (
     <MainContainer>
       <Search
+        lat={route.params.lat}
+        lon={route.params.lon}
         stationName={route.params.stationName}
         stationNum={route.params.stationNum}
+        navigation={navigation}
       />
       <Content
         lat={route.params.lat}
