@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from 'react';
-import {Alert, Button, Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import { PermissionsAndroid, Alert, Button, Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import styled from 'styled-components/native';
-import Geolocation from '@react-native-community/geolocation';
 import {searchSubwayStations} from '../apis/service/kakaoClient'; // 카카오API
 import axios from 'axios';
+import Geolocation from 'react-native-geolocation-service';
 
 interface Props {
   navigation: any;
@@ -19,19 +19,45 @@ const LandingScreen: React.FC<Props> = ({navigation}) => {
   const [heverIndex, setHoverIndex] = useState(-1);
 
   useEffect(() => {
-    Geolocation.getCurrentPosition(
-      position => {
-        const {latitude, longitude} = position.coords;
-        setLat(latitude);
-        setLon(longitude);
-      },
-      error => {
-        console.log(error.code, error.message);
-      },
-      {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
-    );
-  }, []);
+    const requestLocationPermission = async () => {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          {
+            title: 'Location Permission',
+            message: 'This app needs access to your location.',
+            buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Cancel',
+            buttonPositive: 'OK',
+          }
+        );
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          Geolocation.getCurrentPosition(
+            position => {
+              console.log('Current Position:', position);
+              const {latitude, longitude} = position.coords;
+              setLat(latitude);
+              setLon(longitude);
+            },
+            error => {
+              console.log('Error getting current position:', error);
+            },
+            {
+              enableHighAccuracy: true,
+              timeout: 15000,
+              maximumAge: 10000,
+            }
+          );
+        } else {
+          console.log('Location permission denied');
+        }
+      } catch (error) {
+        console.log('Error requesting location permission:', error);
+      }
+    };
 
+    requestLocationPermission();
+  }, []);
   useEffect(() => {
     // 경도 위도에 따른 지하철역 검색
     const handleSearch = async () => {
