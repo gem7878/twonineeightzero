@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axiosInstance from '../apis/service/client';
 import React, {useEffect, useState} from 'react';
 import styled from 'styled-components/native';
 import {Congestion, GuideFooter, Refresh} from './index';
@@ -121,9 +121,9 @@ const Content: React.FC<ContentProps> = ({
   };
 
   const getCurrentFacilityData = async (currentStation: string | undefined) => {
-    axios
+    axiosInstance
       .get(
-        `https://twonineeightzero-58c53d83021d.herokuapp.com/api/facility/${currentStation}`,
+        `/api/facility/${currentStation}`,
       )
       .then(function (res: any) {
         setCurrentFacilitiesList(res.data.data);
@@ -136,9 +136,9 @@ const Content: React.FC<ContentProps> = ({
     currentLine: string | undefined,
     currentStation: string | undefined,
   ) => {
-    axios
+    axiosInstance
       .get(
-        `https://twonineeightzero-58c53d83021d.herokuapp.com/api/maps/${currentLine}/${currentStation}`,
+        `/api/maps/${currentLine}/${currentStation}`,
       )
       .then(function (res: any) {
         PreNextFacilityBox(res.data.전역, res.data.후역);

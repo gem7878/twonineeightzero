@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import { PermissionsAndroid, Alert, Button, Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import styled from 'styled-components/native';
 import {searchSubwayStations} from '../apis/service/kakaoClient'; // 카카오API
-import axios from 'axios';
+import axiosInstance from '../apis/service/client';
 import Geolocation from 'react-native-geolocation-service';
 
 interface Props {
@@ -106,9 +106,9 @@ const LandingScreen: React.FC<Props> = ({navigation}) => {
     let replaceStationName = stationName.replace('역', '');
     let replaceStationNum = Number(stationNum.replace('호선', ''));
 
-    await axios
+    await axiosInstance
       .get(
-        `https://twonineeightzero-58c53d83021d.herokuapp.com/api/stationLine/${replaceStationNum}/${replaceStationName}`,
+        `/api/stationLine/${replaceStationNum}/${replaceStationName}`,
       )
       .then(function (res: any) {
         if (res.data.success === true) {
