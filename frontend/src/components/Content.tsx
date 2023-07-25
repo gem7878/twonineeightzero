@@ -58,7 +58,7 @@ const Content: React.FC<ContentProps> = ({
       setStationName(currentStation);
     }
     getPreNextFacilityData(currentStationNum, currentStation);
-    getCurrentFacilityData(currentStation);
+    getCurrentFacilityData(currentStationNum, currentStation);
   }, [searchStationName, searchStationNum]);
 
   /** 오브젝트 비었는지 확인 */
@@ -120,10 +120,20 @@ const Content: React.FC<ContentProps> = ({
     }
   };
 
-  const getCurrentFacilityData = async (currentStation: string | undefined) => {
-    axiosInstance
+  const getCurrentFacilityData = async (currentStationNum: string, currentStation: string) => { // 호선도 매개변수로 넘어가게함
+    /** (예시) selectedLine으로 호선 버튼 선택되게 하면 되고 , data는 층별로 더 자세하게 수정함.
+     * {"lines":["5","6","경의선","공항철도"],
+     * "selectedLine":"5",
+     * "data":{
+     * "에스컬레이터":{"지하1층":[{"상하행구분":"상행","상세위치":"(B1)B1대합실"},{"상하행구분":"상행","상세위치":"(B1)B1대합실"},{"상하행구분":"하행","상세위치":"(B1)"},{"상하행구분":"하행","상세위치":"(B1)"}],"지하3층":[{"상하행구분":"상행","상세위치":"(B3)"},{"상하행구분":"상행","상세위치":"(B3)"}],"지하2층":[{"상하행구분":"하행","상세위치":"(B2)"},{"상하행구분":"하행","상세위치":"(B2)"},{"상하행구분":"상행","상세위치":"(B2)"},{"상하행구분":"상행","상세위치":"(B2)"}],"지상1층":[{"상하행구분":"하행","상세위치":"(F1)4번출입구"}]},
+     * "엘레베이터":{"지하1층":[{"구분":1,"상세위치":"(B1-B3)승강장"},{"구분":2,"상세위치":"(F1-B1)2번 출입구"}],"지하2층":[{"구분":1,"상세위치":"(B1-B3)승강장"}],"지하3층":[{"구분":1,"상세위치":"(B1-B3)승강장"}],"지상1층":[{"구분":2,"상세위치":"(F1-B1)2번 출입구"}]},
+     * "장애인화장실":{"지하1층":[{"게이트내외":"외","상세위치":" 대합실 1층 3번출구 앞"}]},
+     * "화장실":{"지하1층":[{"게이트내외":"외","상세위치":" 대합실 1층 3번출구 앞"}]}
+     * }}
+     */
+    await axiosInstance
       .get(
-        `/api/facility/${currentStation}`,
+        `/api/facility/${currentStationNum}/${currentStation}`,
       )
       .then(function (res: any) {
         setCurrentFacilitiesList(res.data.data);
@@ -138,7 +148,7 @@ const Content: React.FC<ContentProps> = ({
   ) => {
     axiosInstance
       .get(
-        `/api/maps/${currentLine}/${currentStation}`,
+        `/api/maps/${currentLine}/${currentStation}`, // currentLine을 넘겨서 같은 호선만 검색됨
       )
       .then(function (res: any) {
         PreNextFacilityBox(res.data.전역, res.data.후역);
