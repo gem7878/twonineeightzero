@@ -18,4 +18,4 @@ app.get("/", function (req, res) {
 app.use('/api',apiRouter);
 app.use('/cong',congRouter);
 
-app.listen(3000, () => console.log("3000포트에서 대기 중..."));
+app.listen(process.env.PORT || 3000);
