@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axiosInstance from '../../apis/service/client';
 import React, {useEffect, useState} from 'react';
 import styled from 'styled-components/native';
 
@@ -29,9 +29,9 @@ const Congestion: React.FC<CongestionProps> = ({
   }, [stationName]);
 
   const getData = (station: string | undefined) => {
-    axios
+    axiosInstance
       .get(
-        `https://twonineeightzero-58c53d83021d.herokuapp.com/cong/congestion/${station}`,
+        `/cong/congestion/${station}`,
       )
       .then(function (res: any) {
         setData(res.data[0]['혼잡도']);
