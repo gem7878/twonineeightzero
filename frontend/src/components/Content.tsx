@@ -1,13 +1,20 @@
 import axiosInstance from '../apis/service/client';
 import React, {useEffect, useState} from 'react';
 import styled from 'styled-components/native';
-import {Congestion, GuideFooter, Refresh} from './index';
+import {Congestion, Refresh} from './index';
+import {TouchableOpacity} from 'react-native-gesture-handler';
+import {Alert} from 'react-native';
+
+interface StationContainerStyle {
+  $number: string;
+}
 
 interface ContentProps {
   lat: Number;
   lon: Number;
   searchStationName: any;
   searchStationNum: any;
+  navigation: any;
 }
 
 interface IFDetail {
@@ -34,6 +41,7 @@ const Content: React.FC<ContentProps> = ({
   lon,
   searchStationName,
   searchStationNum,
+  navigation,
 }) => {
   const [currentFacilitiesList, setCurrentFacilitiesList] = useState<any>([]);
   const [preFacilitiesList, setPreFacilitiesList] = useState<any>([]);
@@ -44,6 +52,7 @@ const Content: React.FC<ContentProps> = ({
   const [nextStation, setNextStation] = useState<string>('');
   // const [lineNumList, setLineNumList] = useState<number[]>([1, 2, 5]);
   const [current, setCurrent] = useState({호선: '', 역명: ''});
+  const [currentLines, setCurrentLine] = useState<any>([]);
 
   useEffect(() => {
     let currentStation = searchStationName;
@@ -120,7 +129,11 @@ const Content: React.FC<ContentProps> = ({
     }
   };
 
-  const getCurrentFacilityData = async (currentStationNum: string, currentStation: string) => { // 호선도 매개변수로 넘어가게함
+  const getCurrentFacilityData = async (
+    currentStationNum: string,
+    currentStation: string,
+  ) => {
+    // 호선도 매개변수로 넘어가게함
     /** (예시) selectedLine으로 호선 버튼 선택되게 하면 되고 , data는 층별로 더 자세하게 수정함.
      * {"lines":["5","6","경의선","공항철도"],
      * "selectedLine":"5",
@@ -132,11 +145,10 @@ const Content: React.FC<ContentProps> = ({
      * }}
      */
     await axiosInstance
-      .get(
-        `/api/facility/${currentStationNum}/${currentStation}`,
-      )
+      .get(`/api/facility/${currentStationNum}/${currentStation}`)
       .then(function (res: any) {
         setCurrentFacilitiesList(res.data.data);
+        setCurrentLine(res.data.lines);
       })
       .catch(function (error: any) {
         console.log(error);
@@ -157,33 +169,66 @@ const Content: React.FC<ContentProps> = ({
         console.log(error);
       });
   };
+
+  // 역 이동
+  const moveStationName = (name: string) => {
+    navigation.navigate('Main', {
+      lat: lat,
+      lon: lon,
+      stationName: name,
+      stationNum: current.호선,
+    });
+    setCurrent({호선: current.호선, 역명: name});
+  };
+  // 호선 이동
+  const moveStationNum = (value: string) => {
+    if (value === '5' || value === '6' || value === '7' || value === '8') {
+      navigation.navigate('Main', {
+        lat: lat,
+        lon: lon,
+        stationName: stationName,
+        stationNum: value,
+      });
+      setCurrent({호선: value, 역명: stationName});
+    } else {
+      Alert.alert('아직 5호선~8호선만 지원합니다.');
+    }
+  };
   return (
     <ContentContainer>
       <ContentHeader>
         <Refresh lat={lat} lon={lon} />
         <LineNumberListContainer>
-          {/* <LineNumberListBox>
-            {lineNumList.map((value: number, index: number) => {
-              return (
-                <LineNumberListItem key={index}>{value}</LineNumberListItem>
-              );
+          <LineNumberListBox>
+            {currentLines.map((value: string, index: number) => {
+              if (['5', '6', '7', '8'].includes(value)) {
+                return (
+                  <TouchableOpacity
+                    key={index}
+                    onPress={() => moveStationNum(value)}>
+                    <LineNumberListItem $number={value}>
+                      {value}
+                    </LineNumberListItem>
+                  </TouchableOpacity>
+                );
+              }
             })}
           </LineNumberListBox>
-          <LineNumberListBorderBottom /> */}
+          <LineNumberListBorderBottom />
         </LineNumberListContainer>
       </ContentHeader>
       <ContentMain>
-        <StationContainer>
-          <StationBox>
+        <StationContainer $number={current.호선}>
+          <StationBox onPress={() => moveStationName(preStation)}>
             <StationText>&lt;&nbsp;&nbsp;</StationText>
             <StationText>{preStation}</StationText>
           </StationBox>
-          <StationMainBox>
+          <StationMainBox $number={current.호선}>
             <BlackText>
               {current.호선} {stationName}
             </BlackText>
           </StationMainBox>
-          <StationBox>
+          <StationBox onPress={() => moveStationName(nextStation)}>
             <StationText>{nextStation}</StationText>
             <StationText>&nbsp;&nbsp;&gt;</StationText>
           </StationBox>
@@ -194,7 +239,7 @@ const Content: React.FC<ContentProps> = ({
             <PointText>{stationName}역</PointText> 의 주요 시설물
           </WhiteText>
           <FacilityView>
-            {currentFacilitiesList.map((value: string, index: number) => {
+            {/* {currentFacilitiesList.map((value: string, index: number) => {
               if (value === '엘레베이터') {
                 return (
                   <FacilityPointIcon
@@ -228,7 +273,7 @@ const Content: React.FC<ContentProps> = ({
                   />
                 );
               }
-            })}
+            })} */}
           </FacilityView>
         </FacilityContainer>
 
@@ -324,7 +369,6 @@ const Content: React.FC<ContentProps> = ({
           </FacilityBox>
         </FacilityPreNextContainer>
       </ContentMain>
-      <GuideFooter />
     </ContentContainer>
   );
 };
@@ -339,7 +383,7 @@ const PointText = styled.Text`
 `;
 const ContentContainer = styled.View`
   width: 100%;
-  height: 89%;
+  height: 74%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -357,12 +401,26 @@ const LineNumberListBox = styled.View`
   flex-direction: row;
   margin-left: 15px;
 `;
-const LineNumberListItem = styled.Text`
+const LineNumberListItem = styled.Text<StationContainerStyle>`
   width: 35px;
   height: 35px;
-  border: 1px solid white;
+  box-sizing: border-box;
+  border: ${props =>
+    props.$number === '5'
+      ? '4px solid #996CAC'
+      : props.$number === '6'
+      ? '4px solid #CD7C2F'
+      : props.$number === '7'
+      ? '4px solid #747F00'
+      : props.$number === '8'
+      ? '4px solid #E6186C'
+      : '4px solid #00ffd1'};
   margin: 2px;
-  color: white;
+  background-color: white;
+  color: black;
+  font-size: 11px;
+  line-height: 35px;
+  text-align: center;
 `;
 const LineNumberListBorderBottom = styled.View`
   height: 2px;
@@ -371,19 +429,29 @@ const LineNumberListBorderBottom = styled.View`
 `;
 const ContentMain = styled.View`
   width: 90%;
+  position: relative;
 `;
-const StationContainer = styled.View`
+const StationContainer = styled.View<StationContainerStyle>`
   width: 100%;
   height: 33px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   padding: 0 20px;
-  margin-top: 20px;
-  background-color: #00ffd1;
+  margin-top: 5px;
+  background-color: ${props =>
+    props.$number === '5'
+      ? '#996CAC'
+      : props.$number === '6'
+      ? '#CD7C2F'
+      : props.$number === '7'
+      ? '#747F00'
+      : props.$number === '8'
+      ? '#E6186C'
+      : '#00ffd1'};
   border-radius: 20px;
 `;
-const StationBox = styled.View`
+const StationBox = styled.TouchableOpacity`
   width: 30%;
   height: 100%;
   display: flex;
@@ -394,7 +462,7 @@ const StationBox = styled.View`
 const StationText = styled.Text`
   color: black;
 `;
-const StationMainBox = styled.View`
+const StationMainBox = styled.View<StationContainerStyle>`
   width: 40%;
   height: 45px;
   top: -6px;
@@ -402,14 +470,23 @@ const StationMainBox = styled.View`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border: 5px solid #00ffd1;
+  border: ${props =>
+    props.$number === '5'
+      ? '5px solid #996CAC'
+      : props.$number === '6'
+      ? '5px solid #CD7C2F'
+      : props.$number === '7'
+      ? '5px solid #747F00'
+      : props.$number === '8'
+      ? '5px solid #E6186C'
+      : '5px solid #00ffd1'};
   border-radius: 20px;
   background-color: white;
 `;
 const FacilityHeader = styled.Text`
   margin-top: 20px;
   width: 100%;
-  color: black;
+  color: white;
 `;
 const FacilityContainer = styled.View`
   width: 100%;
@@ -459,9 +536,5 @@ const FacilityList = styled.View`
 const FacilityIcon = styled.Image`
   width: 23px;
   height: 23px;
-`;
-const FacilityPointIcon = styled.Image`
-  width: 32px;
-  height: 32px;
 `;
 export default Content;
