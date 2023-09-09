@@ -1,5 +1,14 @@
 import React, {useEffect, useState} from 'react';
-import { PermissionsAndroid, Alert, Button, Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+  PermissionsAndroid,
+  Alert,
+  Button,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import styled from 'styled-components/native';
 import {searchSubwayStations} from '../apis/service/kakaoClient'; // 카카오API
 import axiosInstance from '../apis/service/client';
@@ -29,7 +38,7 @@ const LandingScreen: React.FC<Props> = ({navigation}) => {
             buttonNeutral: 'Ask Me Later',
             buttonNegative: 'Cancel',
             buttonPositive: 'OK',
-          }
+          },
         );
         if (granted === PermissionsAndroid.RESULTS.GRANTED) {
           Geolocation.getCurrentPosition(
@@ -46,7 +55,7 @@ const LandingScreen: React.FC<Props> = ({navigation}) => {
               enableHighAccuracy: true,
               timeout: 15000,
               maximumAge: 10000,
-            }
+            },
           );
         } else {
           console.log('Location permission denied');
@@ -107,9 +116,7 @@ const LandingScreen: React.FC<Props> = ({navigation}) => {
     let replaceStationNum = Number(stationNum.replace('호선', ''));
 
     await axiosInstance
-      .get(
-        `/api/stationLine/${replaceStationNum}/${replaceStationName}`,
-      )
+      .get(`/api/stationLine/${replaceStationNum}/${replaceStationName}`)
       .then(function (res: any) {
         if (res.data.success === true) {
           const difference = ['5', '6', '7', '8'].filter(x => {
