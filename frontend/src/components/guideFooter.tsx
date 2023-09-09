@@ -1,12 +1,16 @@
-import React from 'react';
-import {Image, TouchableOpacity} from 'react-native';
+import React, {Dispatch, SetStateAction} from 'react';
+import {Image} from 'react-native';
 import styled from 'styled-components/native';
 
 interface GuideFooterStyle {
   $isMenu: Boolean;
 }
 
-const GuideFooter: React.FC = () => {
+interface GuideFooterProps {
+  openMenu: boolean;
+  setMenuOpen: Dispatch<SetStateAction<boolean>>;
+}
+const GuideFooter: React.FC<GuideFooterProps> = ({openMenu, setMenuOpen}) => {
   /*const navigationRef = useNavigationContainerRef<any>();*/
   const menuList = [
     ['탈선사고', require('../assets/icons/AwayIcon.png')],
@@ -30,8 +34,16 @@ const GuideFooter: React.FC = () => {
       {menuList.map((value: any, index: number) => {
         return (
           <FooterBtn $isMenu={value[0] === 'MENU' ? true : false} key={index}>
-            <TouchableOpacityBtn $isMenu={value[0] === 'MENU' ? true : false}>
-              <Image source={value[1]} />
+            <TouchableOpacityBtn
+              $isMenu={value[0] === 'MENU' ? true : false}
+              onPress={() => {
+                value[0] === 'MENU' && setMenuOpen(!openMenu);
+              }}>
+              {index !== menuList.length - 1 ? (
+                <Image source={value[1]} />
+              ) : (
+                <></>
+              )}
               <FooterMenuText $isMenu={value[0] === 'MENU' ? true : false}>
                 {value[0]}
               </FooterMenuText>
