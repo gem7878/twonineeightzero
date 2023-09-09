@@ -1,5 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import {LandingScreen, MainScreen} from './src/screens/index';
+import React from 'react';
+import {
+  LandingScreen,
+  MainScreen,
+  SignInScreen,
+  SignUpScreen,
+} from './src/screens/index.js';
 import {createStackNavigator} from '@react-navigation/stack';
 import {NavigationContainer} from '@react-navigation/native';
 
@@ -18,6 +23,16 @@ const App = () => {
           name="Main"
           options={{headerShown: false}}
           component={MainScreen}
+        />
+        <Stack.Screen
+          name="SignIn"
+          options={{headerShown: false}}
+          component={SignInScreen}
+        />
+        <Stack.Screen
+          name="SignUp"
+          options={{headerShown: false}}
+          component={SignUpScreen}
         />
       </Stack.Navigator>
     </NavigationContainer>
