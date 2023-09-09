@@ -1,8 +1,8 @@
 const express = require("express");
-const cors = require('cors');
+const cors = require("cors");
 const app = express();
-const apiRouter = require('./routes/station');
-const congRouter = require('./routes/congestion');
+const apiRouter = require("./routes/station");
+const congRouter = require("./routes/congestion");
 
 let corsOptions = {
   origin: "*",
@@ -14,8 +14,8 @@ app.get("/", function (req, res) {
   res.send("안녕하세요!!!!!!!!!!!");
 });
 
-
-app.use('/api',apiRouter);
-app.use('/cong',congRouter);
+app.use("/api", apiRouter);
+app.use("/cong", congRouter);
 
 app.listen(process.env.PORT || 3000);
+// app.listen(process.env.PORT || 4000);

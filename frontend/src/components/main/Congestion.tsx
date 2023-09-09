@@ -16,10 +16,10 @@ const Congestion: React.FC<CongestionProps> = ({
   const [data, setData] = useState([]);
   const [congestion, setCongestion] = useState<number>(0);
   // selected
-  const [stationNum, setStationNum] = useState<string>('5');
-  const [clock, setClock] = useState<string>('5시30분');
-  const [week, setWeek] = useState<string>('평일');
-  const [upPoint, setUpPoint] = useState<string>('상선');
+  // const [stationNum, setStationNum] = useState<string>('5');
+  // const [clock, setClock] = useState<string>('5시30분');
+  // const [week, setWeek] = useState<string>('평일');
+  // const [upPoint, setUpPoint] = useState<string>('상선');
   // list
   let stationNumList: string[] = [];
   // const [upPointList, setUpPointList] = useState<string>('상선');
@@ -29,14 +29,10 @@ const Congestion: React.FC<CongestionProps> = ({
   }, [stationName]);
 
   const getData = (station: string | undefined) => {
-    axiosInstance
-      .get(
-        `/cong/congestion/${station}`,
-      )
-      .then(function (res: any) {
-        setData(res.data[0]['혼잡도']);
-        setCongestion(res.data[0]['혼잡도'][2][1]);
-      });
+    axiosInstance.get(`/cong/congestion/${station}`).then(function (res: any) {
+      setData(res.data[0]['혼잡도']);
+      setCongestion(res.data[0]['혼잡도'][2][1]);
+    });
   };
 
   return (
