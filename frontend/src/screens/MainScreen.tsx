@@ -45,7 +45,7 @@ const MainScreen: React.FC<Props> = ({route, navigation}) => {
         <></>
       )}
 
-      <GuideFooter openMenu={openMenu} setMenuOpen={setMenuOpen} />
+      <GuideFooter navigation = {navigation} openMenu={openMenu} setMenuOpen={setMenuOpen} />
     </MainContainer>
   );
 };

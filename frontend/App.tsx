@@ -4,6 +4,7 @@ import {
   MainScreen,
   SignInScreen,
   SignUpScreen,
+  DisasterGuideScreen
 } from './src/screens/index.js';
 import {createStackNavigator} from '@react-navigation/stack';
 import {NavigationContainer} from '@react-navigation/native';
@@ -33,6 +34,11 @@ const App = () => {
           name="SignUp"
           options={{headerShown: false}}
           component={SignUpScreen}
+        />
+        <Stack.Screen
+          name="DisasterGuides"
+          options={{headerShown: false}}
+          component={DisasterGuideScreen}
         />
       </Stack.Navigator>
     </NavigationContainer>
