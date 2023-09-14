@@ -1,5 +1,5 @@
 export {default as GuideFooter} from './guideFooter.tsx';
-export {default as Maps} from './maps.tsx';
+export {default as Maps} from './Maps.tsx';
 export {default as Search} from './Search.tsx';
 export {default as Content} from './Content.tsx';
 
