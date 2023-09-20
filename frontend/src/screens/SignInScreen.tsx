@@ -42,8 +42,8 @@ const SignInScreen: React.FC = () => {
           control={control}
           rules={{
             minLength: {
-              value: 8,
-              message: '아이디 8글자 이상 입력하시오',
+              value: 6,
+              message: '아이디 6글자 이상 입력하시오',
             },
             maxLength: {
               value: 15,
