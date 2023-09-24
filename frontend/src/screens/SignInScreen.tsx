@@ -4,6 +4,7 @@ import {useForm, Controller} from 'react-hook-form';
 import styled from 'styled-components/native';
 import axiosInstance from '../apis/service/client';
 import {LogInHeader} from '../components/index';
+import {useNavigation} from '@react-navigation/native';
 
 const SignInScreen: React.FC = () => {
   const {
@@ -17,6 +18,7 @@ const SignInScreen: React.FC = () => {
     },
   });
 
+  const {goBack} = useNavigation();
   const onSubmit = async (data: any) => {
     await axiosInstance
       .post('/user/login', {
@@ -26,6 +28,7 @@ const SignInScreen: React.FC = () => {
       .then(function (res: any) {
         if (res.status === 200) {
           console.log(res.data.message);
+          goBack();
         }
       })
       .catch(function (error: any) {
@@ -42,8 +45,8 @@ const SignInScreen: React.FC = () => {
           control={control}
           rules={{
             minLength: {
-              value: 8,
-              message: '아이디 8글자 이상 입력하시오',
+              value: 6,
+              message: '아이디 6글자 이상 입력하시오',
             },
             maxLength: {
               value: 15,

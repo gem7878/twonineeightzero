@@ -7,9 +7,5 @@ export {default as Content} from './Content.tsx';
 export {default as Congestion} from './main/Congestion.tsx';
 export {default as Refresh} from './main/Refresh.tsx';
 
-// menu
-export {default as SignIn} from './menu/SignIn.tsx';
-export {default as SignUp} from './menu/SignUp.tsx';
-
 // login
 export {default as LogInHeader} from './login/LogInHeader.tsx';
