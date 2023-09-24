@@ -537,4 +537,8 @@ const FacilityIcon = styled.Image`
   width: 23px;
   height: 23px;
 `;
+const FacilityPointIcon = styled.Image`
+  width: 32px;
+  height: 32px;
+`;
 export default Content;
