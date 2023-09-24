@@ -4,11 +4,10 @@ import styled from 'styled-components/native';
 import {LogInHeader} from '../components/index';
 
 interface Props {
-    navigation: any;
     route: any;
 }
 
-const DisasterGuide: React.FC<Props> = ({navigation, route}) => {
+const DisasterGuide: React.FC<Props> = ({route}) => {
     const {guideInformation} = route.params;
   
   return (

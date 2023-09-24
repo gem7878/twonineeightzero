@@ -4,6 +4,7 @@ import {useForm, Controller} from 'react-hook-form';
 import styled from 'styled-components/native';
 import axiosInstance from '../apis/service/client';
 import {LogInHeader} from '../components';
+import {useNavigation} from '@react-navigation/native';
 
 const SignUpScreen: React.FC = () => {
   const {
@@ -23,6 +24,7 @@ const SignUpScreen: React.FC = () => {
   const password = useRef({});
   password.current = watch('Password', '');
 
+  const {goBack} = useNavigation();
   const onSubmit = async (data: any) => {
     await axiosInstance
       .post('/user/register', {
@@ -32,6 +34,7 @@ const SignUpScreen: React.FC = () => {
       .then(function (res: any) {
         if (res.status === 201) {
           console.log(res.data.message);
+          goBack();
         }
       })
       .catch(function (error: any) {
