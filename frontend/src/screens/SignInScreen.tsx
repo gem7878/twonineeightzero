@@ -21,18 +21,18 @@ const SignInScreen: React.FC = () => {
   const {goBack} = useNavigation();
   const onSubmit = async (data: any) => {
     await axiosInstance
-      .post('/user/login', {
+      .post('/auth/signin', {
         user_name: data.ID,
         user_password: data.Password,
       })
       .then(function (res: any) {
         if (res.status === 200) {
-          console.log(res.data.message);
+          console.log(res.data.user_name + ' 로그인 성공했습니다.');
           goBack();
         }
       })
       .catch(function (error: any) {
-        Alert.alert('Error', error.response.data.error);
+        Alert.alert('Error', error.response.data);
       });
   };
 
