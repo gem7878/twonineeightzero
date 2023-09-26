@@ -27,18 +27,19 @@ const SignUpScreen: React.FC = () => {
   const {goBack} = useNavigation();
   const onSubmit = async (data: any) => {
     await axiosInstance
-      .post('/user/register', {
+      .post('/auth/signup', {
         user_name: data.ID,
         user_password: data.Password,
+        roles: []
       })
       .then(function (res: any) {
-        if (res.status === 201) {
+        if (res.status === 200) {
           console.log(res.data.message);
           goBack();
         }
       })
       .catch(function (error: any) {
-        Alert.alert('Error', error.response.data.error);
+        Alert.alert('Error', error.response.data);
       });
   };
 
