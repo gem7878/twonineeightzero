@@ -194,6 +194,7 @@ const Content: React.FC<ContentProps> = ({
       Alert.alert('아직 5호선~8호선만 지원합니다.');
     }
   };
+
   return (
     <ContentContainer>
       <ContentHeader>
@@ -239,7 +240,31 @@ const Content: React.FC<ContentProps> = ({
             <PointText>{stationName}역</PointText> 의 주요 시설물
           </WhiteText>
           <FacilityView>
-            {/* {currentFacilitiesList.map((value: string, index: number) => {
+            {Object.keys(currentFacilitiesList.에스컬레이터).length > 0 && (
+              <FacilityPointIcon
+                source={require('../assets/icons/facility/EscalatorPoint.png')}
+                alt=""
+              />
+            )}
+            {Object.keys(currentFacilitiesList.엘레베이터).length > 0 && (
+              <FacilityPointIcon
+                source={require('../assets/icons/facility/ElevatorPoint.png')}
+                alt=""
+              />
+            )}
+            {Object.keys(currentFacilitiesList.화장실).length > 0 && (
+              <FacilityPointIcon
+                source={require('../assets/icons/facility/RestroomPoint.png')}
+                alt=""
+              />
+            )}
+            {Object.keys(currentFacilitiesList.장애인화장실).length > 0 && (
+              <FacilityPointIcon
+                source={require('../assets/icons/facility/DisabledPoint.png')}
+                alt=""
+              />
+            )}
+            {/* {currentFacilitiesList.map((value: any, index: number) => {
               if (value === '엘레베이터') {
                 return (
                   <FacilityPointIcon
