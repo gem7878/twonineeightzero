@@ -61,5 +61,3 @@ yarn-error.log
 
 # Temporary files created by Metro to check the health of the file watcher
 .metro-health-check*
-frontend/src/apis/service/client.tsx
-frontend/src/apis/service/secrets.ts
