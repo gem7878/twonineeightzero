@@ -61,12 +61,12 @@ export function signin (req,res) {
         }
 
         const token = jwt.sign({id:user.user_id},
-                                config.secret,
-                                {
-                                    algorithm: 'HS256',
-                                    allowInsecureKeySizes: true,
-                                    expiresIn: 86400, // 24hours
-                                });
+            config.secret,
+            {
+                algorithm: 'HS256',
+                allowInsecureKeySizes: true,
+                expiresIn: '3h',
+            });
         var authorities = [];
         user.getRoles().then(roles => {
             for(let i = 0; i < roles.length; i++) {
