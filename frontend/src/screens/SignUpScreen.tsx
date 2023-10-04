@@ -39,7 +39,7 @@ const SignUpScreen: React.FC = () => {
         }
       })
       .catch(function (error: any) {
-        Alert.alert('Error', error.response.data);
+        Alert.alert('오류', error.response.data.message);
       });
   };
 
