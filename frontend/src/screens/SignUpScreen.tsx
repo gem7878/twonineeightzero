@@ -3,7 +3,7 @@ import {Text, Button, Alert, View} from 'react-native';
 import {useForm, Controller} from 'react-hook-form';
 import styled from 'styled-components/native';
 import axiosInstance from '../apis/service/client';
-import {LogInHeader} from '../components';
+import {BackHeader} from '../components';
 import {useNavigation} from '@react-navigation/native';
 
 const SignUpScreen: React.FC = () => {
@@ -45,7 +45,7 @@ const SignUpScreen: React.FC = () => {
 
   return (
     <ContentContainer>
-      <LogInHeader />
+      <BackHeader />
 
       <SignUpBox>
         <LeftText>아이디</LeftText>
