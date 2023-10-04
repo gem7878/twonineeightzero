@@ -3,8 +3,9 @@ import {Text, Button, Alert, View} from 'react-native';
 import {useForm, Controller} from 'react-hook-form';
 import styled from 'styled-components/native';
 import axiosInstance from '../apis/service/client';
-import {LogInHeader} from '../components/index';
+import {BackHeader} from '../components/index';
 import {useNavigation} from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SignInScreen: React.FC = () => {
   const {
@@ -28,6 +29,7 @@ const SignInScreen: React.FC = () => {
       .then(function (res: any) {
         if (res.status === 200) {
           console.log(res.data.user_name + ' 로그인 성공했습니다.');
+          AsyncStorage.setItem('my-token', res.data.accessToken);
           goBack();
         }
       })
@@ -38,7 +40,7 @@ const SignInScreen: React.FC = () => {
 
   return (
     <ContentContainer>
-      <LogInHeader />
+      <BackHeader />
       <SignInBox>
         <LeftText>아이디</LeftText>
         <Controller

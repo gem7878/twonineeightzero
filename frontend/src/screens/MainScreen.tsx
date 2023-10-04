@@ -1,6 +1,9 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import styled from 'styled-components/native';
 import {Search, Content, GuideFooter} from '../components/index';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useIsFocused } from '@react-navigation/native';
+
 interface Props {
   route: any;
   navigation: any;
@@ -8,10 +11,36 @@ interface Props {
 
 const MainScreen: React.FC<Props> = ({route, navigation}) => {
   const [openMenu, setMenuOpen] = useState(false);
+  const [isLogin, setIsLogin] = useState(false);
 
   const moveMenuScreen = (menu: string) => {
     navigation.navigate(menu);
   };
+
+  const logout = async () => {
+    await AsyncStorage.removeItem('my-token');
+    setIsLogin(false);
+  }
+
+  const isFocused = useIsFocused();
+
+  useEffect(() => {
+    if(isFocused) {
+      loadData();
+    }
+  }, [isFocused]);
+
+  const loadData = async () => {
+    await AsyncStorage.getItem('my-token')
+      .then((value) => {
+        if(value != null) {
+          setIsLogin(true);
+        }
+      }).catch((err) => {
+        console.log(err);
+      })
+  }
+  
   return (
     <MainContainer>
       <Search
@@ -28,8 +57,17 @@ const MainScreen: React.FC<Props> = ({route, navigation}) => {
         searchStationNum={route.params.stationNum}
         navigation={navigation}
       />
-      {/* <Maps /> */}
-      {openMenu ? (
+
+      {openMenu && isLogin ? (
+        <MenuContainer>
+          <MenuBox onPress={() => console.log("고객의 소리")}>
+            <MenuText>고객의{'\n'}소리</MenuText>
+          </MenuBox>
+          <MenuBox onPress={() => logout()}>
+            <MenuText>로그아웃</MenuText>
+          </MenuBox>
+        </MenuContainer>
+      ) : ((openMenu && !isLogin) ? (
         <MenuContainer>
           <MenuBox onPress={() => moveMenuScreen('SignIn')}>
             <MenuText>로그인</MenuText>
@@ -37,13 +75,10 @@ const MainScreen: React.FC<Props> = ({route, navigation}) => {
           <MenuBox onPress={() => moveMenuScreen('SignUp')}>
             <MenuText>회원가입</MenuText>
           </MenuBox>
-          <MenuBox>
-            <MenuText>고객의{'\n'}소리</MenuText>
-          </MenuBox>
         </MenuContainer>
       ) : (
         <></>
-      )}
+      ))}
 
       <GuideFooter navigation = {navigation} openMenu={openMenu} setMenuOpen={setMenuOpen} />
     </MainContainer>
