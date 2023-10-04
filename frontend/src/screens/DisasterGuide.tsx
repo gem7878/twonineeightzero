@@ -1,7 +1,7 @@
 import React from 'react';
 import {Text, View, FlatList} from 'react-native';
 import styled from 'styled-components/native';
-import {LogInHeader} from '../components/index';
+import {BackHeader} from '../components/index';
 
 interface Props {
     route: any;
@@ -12,7 +12,7 @@ const DisasterGuide: React.FC<Props> = ({route}) => {
   
   return (
     <View style={{margin:20}}>
-        <LogInHeader />
+        <BackHeader />
         {guideInformation.map((value : string, index : number) => {
             if(index % 2 === 0) {
                 return (

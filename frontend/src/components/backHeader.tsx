@@ -3,7 +3,7 @@ import {TouchableOpacity} from 'react-native-gesture-handler';
 import styled from 'styled-components/native';
 import {useNavigation} from '@react-navigation/native';
 
-const LogInHeader = () => {
+const BackHeader = () => {
   const {goBack} = useNavigation();
 
   const moveMenuScreen = () => {
@@ -13,7 +13,7 @@ const LogInHeader = () => {
     <LogInHeaderContainer>
       <TouchableOpacity onPress={() => moveMenuScreen()}>
         <BackBox>
-          <BackIcon source={require('../../assets/icons/BackIcon.png')} />
+          <BackIcon source={require('../assets/icons/BackIcon.png')} />
         </BackBox>
       </TouchableOpacity>
     </LogInHeaderContainer>
@@ -37,4 +37,4 @@ const BackIcon = styled.Image`
   /* width: 35px;
   height: 35px; */
 `;
-export default LogInHeader;
+export default BackHeader;
