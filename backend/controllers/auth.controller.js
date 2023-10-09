@@ -55,7 +55,6 @@ export function signin (req,res) {
 
         if(!passwordIsValid) {
             return res.status(401).send({
-                accessToken: null,
                 message: "비밀번호가 다릅니다"
             });
         }
