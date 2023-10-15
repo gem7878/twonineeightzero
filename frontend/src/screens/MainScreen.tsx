@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import styled from 'styled-components/native';
 import {Search, Content, GuideFooter} from '../components/index';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useIsFocused } from '@react-navigation/native';
+import {useIsFocused} from '@react-navigation/native';
 
 interface Props {
   route: any;
@@ -20,27 +20,28 @@ const MainScreen: React.FC<Props> = ({route, navigation}) => {
   const logout = async () => {
     await AsyncStorage.removeItem('my-token');
     setIsLogin(false);
-  }
+  };
 
   const isFocused = useIsFocused();
 
   useEffect(() => {
-    if(isFocused) {
+    if (isFocused) {
       loadData();
     }
   }, [isFocused]);
 
   const loadData = async () => {
     await AsyncStorage.getItem('my-token')
-      .then((value) => {
-        if(value != null) {
+      .then(value => {
+        if (value != null) {
           setIsLogin(true);
         }
-      }).catch((err) => {
-        console.log(err);
       })
-  }
-  
+      .catch(err => {
+        console.log(err);
+      });
+  };
+
   return (
     <MainContainer>
       <Search
@@ -60,14 +61,14 @@ const MainScreen: React.FC<Props> = ({route, navigation}) => {
 
       {openMenu && isLogin ? (
         <MenuContainer>
-          <MenuBox onPress={() => console.log("고객의 소리")}>
+          <MenuBox onPress={() => moveMenuScreen('CustomerService')}>
             <MenuText>고객의{'\n'}소리</MenuText>
           </MenuBox>
           <MenuBox onPress={() => logout()}>
             <MenuText>로그아웃</MenuText>
           </MenuBox>
         </MenuContainer>
-      ) : ((openMenu && !isLogin) ? (
+      ) : openMenu && !isLogin ? (
         <MenuContainer>
           <MenuBox onPress={() => moveMenuScreen('SignIn')}>
             <MenuText>로그인</MenuText>
@@ -78,9 +79,13 @@ const MainScreen: React.FC<Props> = ({route, navigation}) => {
         </MenuContainer>
       ) : (
         <></>
-      ))}
+      )}
 
-      <GuideFooter navigation = {navigation} openMenu={openMenu} setMenuOpen={setMenuOpen} />
+      <GuideFooter
+        navigation={navigation}
+        openMenu={openMenu}
+        setMenuOpen={setMenuOpen}
+      />
     </MainContainer>
   );
 };
@@ -91,13 +96,12 @@ const MainContainer = styled.View`
   width: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  /* justify-content: space-between; */
   align-items: center;
 `;
 
 const MenuContainer = styled.View`
   width: 20%;
-  /* height: 5%; */
   position: absolute;
   right: 0;
   bottom: 10%;

@@ -53,6 +53,7 @@ const Content: React.FC<ContentProps> = ({
   // const [lineNumList, setLineNumList] = useState<number[]>([1, 2, 5]);
   const [current, setCurrent] = useState({호선: '', 역명: ''});
   const [currentLines, setCurrentLine] = useState<any>([]);
+  const [isOpenPos, setIsOpenPos] = useState('');
 
   useEffect(() => {
     let currentStation = searchStationName;
@@ -234,49 +235,65 @@ const Content: React.FC<ContentProps> = ({
           </StationBox>
         </StationContainer>
         <FacilityHeader>역 내 주요 시설</FacilityHeader>
-        <FacilityContainer>
+        <FacilityContainer onPress={() => isOpenPos && setIsOpenPos('')}>
           <WhiteText>
-            <PointText>{stationName}역</PointText> 의 주요 시설물
+            {isOpenPos ? (
+              <>
+                <PointText>{stationName}역</PointText> {isOpenPos}의 위치
+              </>
+            ) : (
+              <>
+                <PointText>{stationName}역</PointText> 의 주요 시설물
+              </>
+            )}
           </WhiteText>
-          <FacilityView>
-            {/* {currentFacilitiesList.map((value: string, index: number) => {
-              if (value === '엘레베이터') {
-                return (
+          {/* {isOpenPos ? (
+            <FacilityView>
+              {Object.keys(currentFacilitiesList[isOpenPos]).map(
+                (value, index) => {
+                  return <WhiteText key={index}>{value}</WhiteText>;
+                },
+              )}
+            </FacilityView>
+          ) : (
+            <FacilityView>
+              {Object.keys(currentFacilitiesList['에스컬레이터'])?.length >
+                0 && (
+                <TouchableOpacity onPress={() => setIsOpenPos('에스컬레이터')}>
                   <FacilityPointIcon
-                    key={index}
-                    source={require('../assets/icons/facility/ElevatorPoint.png')}
-                    alt=""
-                  />
-                );
-              } else if (value === '에스컬레이터') {
-                return (
-                  <FacilityPointIcon
-                    key={index}
                     source={require('../assets/icons/facility/EscalatorPoint.png')}
                     alt=""
                   />
-                );
-              } else if (value === '화장실') {
-                return (
+                </TouchableOpacity>
+              )}
+              {Object.keys(currentFacilitiesList['엘레베이터'])?.length > 0 && (
+                <TouchableOpacity onPress={() => setIsOpenPos('엘레베이터')}>
                   <FacilityPointIcon
-                    key={index}
+                    source={require('../assets/icons/facility/ElevatorPoint.png')}
+                    alt=""
+                  />
+                </TouchableOpacity>
+              )}
+              {Object.keys(currentFacilitiesList['화장실'])?.length > 0 && (
+                <TouchableOpacity onPress={() => setIsOpenPos('화장실')}>
+                  <FacilityPointIcon
                     source={require('../assets/icons/facility/RestroomPoint.png')}
                     alt=""
                   />
-                );
-              } else if (value === '장애인화장실') {
-                return (
+                </TouchableOpacity>
+              )}
+              {Object.keys(currentFacilitiesList['장애인화장실'])?.length >
+                0 && (
+                <TouchableOpacity onPress={() => setIsOpenPos('장애인화장실')}>
                   <FacilityPointIcon
-                    key={index}
                     source={require('../assets/icons/facility/DisabledPoint.png')}
                     alt=""
                   />
-                );
-              }
-            })} */}
-          </FacilityView>
+                </TouchableOpacity>
+              )}
+            </FacilityView>
+          )} */}
         </FacilityContainer>
-
         <Congestion
           stationName={stationName}
           WhiteText={WhiteText}
@@ -383,27 +400,28 @@ const PointText = styled.Text`
 `;
 const ContentContainer = styled.View`
   width: 100%;
-  height: 74%;
+  height: 79%;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  /* justify-content: space-between; */
   align-items: center;
 `;
 const ContentHeader = styled.View`
   width: 100%;
 `;
 const LineNumberListContainer = styled.View`
-  height: 20px;
+  height: 35px;
   width: 100%;
 `;
 const LineNumberListBox = styled.View`
   display: flex;
+  height: 100%;
   flex-direction: row;
   margin-left: 15px;
 `;
 const LineNumberListItem = styled.Text<StationContainerStyle>`
   width: 35px;
-  height: 35px;
+  height: 100%;
   box-sizing: border-box;
   border: ${props =>
     props.$number === '5'
@@ -415,7 +433,6 @@ const LineNumberListItem = styled.Text<StationContainerStyle>`
       : props.$number === '8'
       ? '4px solid #E6186C'
       : '4px solid #00ffd1'};
-  margin: 2px;
   background-color: white;
   color: black;
   font-size: 11px;
@@ -429,7 +446,7 @@ const LineNumberListBorderBottom = styled.View`
 `;
 const ContentMain = styled.View`
   width: 90%;
-  position: relative;
+  /* position: relative; */
 `;
 const StationContainer = styled.View<StationContainerStyle>`
   width: 100%;
@@ -438,7 +455,7 @@ const StationContainer = styled.View<StationContainerStyle>`
   flex-direction: row;
   justify-content: space-between;
   padding: 0 20px;
-  margin-top: 5px;
+  margin-top: 15px;
   background-color: ${props =>
     props.$number === '5'
       ? '#996CAC'
@@ -488,7 +505,7 @@ const FacilityHeader = styled.Text`
   width: 100%;
   color: white;
 `;
-const FacilityContainer = styled.View`
+const FacilityContainer = styled.TouchableOpacity`
   width: 100%;
   border: 1px solid white;
   border-radius: 15px;
