@@ -4,7 +4,10 @@ import {
   MainScreen,
   SignInScreen,
   SignUpScreen,
-  DisasterGuideScreen
+  DisasterGuideScreen,
+  CustomerServiceMain,
+  CustomerServiceWrite,
+  CustomerServiceContent,
 } from './src/screens/index.js';
 import {createStackNavigator} from '@react-navigation/stack';
 import {NavigationContainer} from '@react-navigation/native';
@@ -39,6 +42,21 @@ const App = () => {
           name="DisasterGuides"
           options={{headerShown: false}}
           component={DisasterGuideScreen}
+        />
+        <Stack.Screen
+          name="CustomerService"
+          options={{headerShown: false}}
+          component={CustomerServiceMain}
+        />
+        <Stack.Screen
+          name="CustomerServiceWrite"
+          options={{headerShown: false}}
+          component={CustomerServiceWrite}
+        />
+        <Stack.Screen
+          name="CustomerServiceContent"
+          options={{headerShown: false}}
+          component={CustomerServiceContent}
         />
       </Stack.Navigator>
     </NavigationContainer>
