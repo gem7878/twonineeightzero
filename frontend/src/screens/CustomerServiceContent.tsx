@@ -26,8 +26,9 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
 
   useEffect(() => {
     loadData();
-    console.log('오잉', route.params.id);
+  }, []);
 
+  useEffect(() => {
     setContentId(route.params.id);
     if (!isEditing) {
       getBoardData(route.params.id);
