@@ -6,7 +6,7 @@ import apiRouter from './routes/station.routes.js';
 import congRouter from './routes/congestion.routes.js';
 import authRouter from './routes/auth.routes.js';
 import userRouter from './routes/user.routes.js';
-
+import boardRouter from './routes/board.routes.js';
 import db from './models/index.js';
 
 const app = express();
@@ -44,6 +44,7 @@ app.get("/", function (req, res) {
 app.use('/api',apiRouter);
 app.use('/cong',congRouter);
 app.use('/auth',authRouter);
-app.use('/test', userRouter)
+app.use('/test', userRouter);
+app.use("/board", boardRouter);
 
 app.listen(process.env.PORT || 4000);

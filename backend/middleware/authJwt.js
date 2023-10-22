@@ -24,6 +24,39 @@ export function verifyToken (req, res, next) {
     });
 }
 
+export function editableRole (req, res, next) {
+    let token = req.headers["x-access-token"];
+
+    if(!token) {
+        req.editable = false;
+        next();
+    }
+
+    jwt.verify(token, config.secret, (err, decoded) => {
+        User.findByPk(decoded.id).then(user => {
+            user.getRoles().then(roles => {
+                for (let i = 0; i < roles.length; i++) {
+                    if(roles[i].name === "moderator") {
+                        req.editable = true;
+                        next();
+                    }
+    
+                    if(roles[i].name === "admin") {
+                        req.editable = true;
+                        next();
+                    }
+
+                    if(roles[i].name === "user") {
+                        req.editable = decoded.id;
+                        next();
+                    }
+                }
+            });
+        })
+    });
+
+}
+
 export function isAdmin (req, res, next) {
     User.findByPk(req.user_id).then(user => {
         user.getRoles().then(roles => {

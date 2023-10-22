@@ -9,6 +9,7 @@ export default (sequelize, Sequelize) => {
     user_name: {
       type: Sequelize.STRING(40),
       allowNull: false,
+      unique: true
     },
     password_hash: {
       type: Sequelize.STRING(128),
