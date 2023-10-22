@@ -55,7 +55,7 @@ const CustomerServiceWrite: React.FC<Props> = ({navigation}) => {
       };
       await axiosInstance
         .post('/board/post/write', formData, {
-          headers: {Authorization: token},
+          headers: {'x-access-token': token},
         })
         .then(function (res: any) {
           console.log(res.data);
