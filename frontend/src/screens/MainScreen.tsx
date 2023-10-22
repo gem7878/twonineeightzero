@@ -14,6 +14,7 @@ const MainScreen: React.FC<Props> = ({route, navigation}) => {
   const [isLogin, setIsLogin] = useState(false);
 
   const moveMenuScreen = (menu: string) => {
+    setMenuOpen(false);
     navigation.navigate(menu);
   };
 
