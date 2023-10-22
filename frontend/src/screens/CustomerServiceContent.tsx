@@ -21,12 +21,18 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
   const [date, setDate] = useState('');
   const [contentId, setContentId] = useState();
   const [commment, setCommment] = useState('');
+  const [commentList, setCommentList] = useState([]);
   const [token, setToken] = useState('');
 
   useEffect(() => {
     loadData();
+    console.log('오잉', route.params.id);
+
     setContentId(route.params.id);
-    isEditing || getBoardData();
+    if (!isEditing) {
+      getBoardData(route.params.id);
+      getCommentData({id: route.params.id, page: route.params.page});
+    }
     // setTitle(bodyDatas[route.params.id].제목);
     // setContent(bodyDatas[route.params.id].내용);
     // setDate(bodyDatas[route.params.id].날짜);
@@ -56,13 +62,15 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
       });
   };
 
-  const getBoardData = async () => {
+  const getBoardData = async (id: number) => {
     try {
       await axiosInstance
-        .get(`/board/post/${contentId}`)
+        .get(`/board/post/${id}`)
         .then(function (res: any) {
-          setTitle(res.data.title);
-          setContent(res.data.content);
+          // setTitle(res.data.title);
+          // setContent(res.data.content);
+          console.log('오호', res.data);
+
           // setDate(res.data.date);
         })
         .catch(function (error: any) {
@@ -89,7 +97,7 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
       };
       await axiosInstance
         .post(`/board/post/update/${contentId}`, formData, {
-          headers: {Authorization: token},
+          headers: {'x-access-token': token},
         })
         .then(function (res: any) {
           console.log(res.data);
@@ -119,12 +127,13 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
       console.error(error);
     }
   };
-  const getCommentData = async () => {
+  const getCommentData = async ({id, page}: any) => {
     try {
       await axiosInstance
-        .get(`/board/comment/${contentId}/page/1/`)
+        .get(`/board/comment/${id}/page/${page}/`)
         .then(function (res: any) {
-          setCommment(res.data.content);
+          console.log(res.data);
+          // setCommentList(res.data.content);
         })
         .catch(function (error: any) {
           console.log(error);
@@ -141,7 +150,7 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
       };
       await axiosInstance
         .post(`/board/comment/${contentId}/write`, formData, {
-          headers: {Authorization: token},
+          headers: {'x-access-token': token},
         })
         .then(function (res: any) {
           console.log(res.data);
@@ -163,7 +172,7 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
       };
       await axiosInstance
         .post(`/board/comment/update/${contentId}`, formData, {
-          headers: {Authorization: token},
+          headers: {'x-access-token': token},
         })
         .then(function (res: any) {
           console.log(res.data);
@@ -250,7 +259,10 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
               </CustomerServiceButton>
             </CustomerCommentView>
             <CustomerCommentList>
-              <Text>댓글1</Text>
+              {/* {getCommentData.map((value, index) => {
+                return <Text>댓글1</Text>;
+              })} */}
+
               <CustomerCommentEdit>
                 <TouchableOpacity>
                   <Text>편집</Text>
