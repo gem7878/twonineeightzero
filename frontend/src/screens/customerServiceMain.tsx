@@ -1,12 +1,8 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Text} from 'react-native';
 import styled from 'styled-components/native';
 import {BackHeader} from '../components';
 import axiosInstance from '../apis/service/client';
-
-interface CustomerServiceMainStyles {
-  $boardData: string;
-}
 
 interface Props {
   route: any;
@@ -29,12 +25,18 @@ const CustomerServiceMain: React.FC<Props> = ({route, navigation}) => {
   const [page, setPage] = useState(1);
   const [postData, setPostData] = useState([]);
 
+  useEffect(() => {
+    getPosFindAll();
+  }, []);
+
   const getPosFindAll = async () => {
     try {
       await axiosInstance
         .get(`/board/post/page/${page}`)
         .then(function (res: any) {
-          setPostData(res.data);
+          console.log('안녕', res.data.data);
+
+          setPostData(res.data.data);
         })
         .catch(function (error: any) {
           console.log(error);
@@ -52,35 +54,24 @@ const CustomerServiceMain: React.FC<Props> = ({route, navigation}) => {
       </WriteButton>
       <BoardContainer>
         <BoardHeader>
-          {heads.map((value, index) => {
-            return (
-              <BoardData $boardData={value}>
-                <Text key={index}>{value}</Text>
-              </BoardData>
-            );
-          })}
+          <BoardData>
+            <Text>제목</Text>
+          </BoardData>
         </BoardHeader>
         <BoardBody>
-          {postData.map((rowValue, rowIndex) => {
+          {postData.map((value, index) => {
             return (
               <BoardRow
-                key={rowIndex}
+                key={index}
                 onPress={() =>
-                  navigation.navigate('CustomerServiceContent', {id: rowIndex})
+                  navigation.navigate('CustomerServiceContent', {
+                    id: value.id,
+                    page: page,
+                  })
                 }>
-                <BoardData $boardData={'번호'}>
-                  <Text>{rowIndex}</Text>
+                <BoardData key={index}>
+                  <Text>{value.title}</Text>
                 </BoardData>
-
-                {Object.entries(rowValue).map((value, index) => {
-                  if (value[0] !== '내용') {
-                    return (
-                      <BoardData $boardData={value[0]}>
-                        {/* <Text key={index}>{value[1]}</Text> */}
-                      </BoardData>
-                    );
-                  }
-                })}
               </BoardRow>
             );
           })}
@@ -138,18 +129,8 @@ const BoardRow = styled.TouchableOpacity`
   justify-content: space-around;
   border: 1px solid #00ffd1;
 `;
-const BoardData = styled.View<CustomerServiceMainStyles>`
+const BoardData = styled.View`
   height: 100%;
-  width: ${props =>
-    props.$boardData === '번호'
-      ? '10%'
-      : props.$boardData === '제목'
-      ? '50%'
-      : props.$boardData === '아이디'
-      ? '15%'
-      : props.$boardData === '날짜'
-      ? '25%'
-      : '0%'};
   display: flex;
   align-items: center;
   justify-content: center;
