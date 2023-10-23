@@ -22,20 +22,17 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
   const [contentId, setContentId] = useState();
   const [commment, setCommment] = useState('');
   const [commentList, setCommentList] = useState([]);
-  const [token, setToken] = useState('');
+  const [token, setToken] = useState<string | null>(null);
+  
+
 
   useEffect(() => {
-    loadData();
-    console.log('오잉', route.params.id);
-
-    setContentId(route.params.id);
-    if (!isEditing) {
-      getBoardData(route.params.id);
-      getCommentData({id: route.params.id, page: route.params.page});
-    }
-    // setTitle(bodyDatas[route.params.id].제목);
-    // setContent(bodyDatas[route.params.id].내용);
-    // setDate(bodyDatas[route.params.id].날짜);
+    (async () => {
+      // console.log('오잉', route.params.id);
+      // setContentId(route.params.id);
+      await getBoardData(route.params.id);
+      await getCommentData(route.params.id);
+    })()
   }, [isEditing]);
 
   useEffect(() => {
@@ -50,34 +47,38 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
     // setDate(`${today.getFullYear()}-${formattedMonth}-${formattedDate}`);
   }, [date]);
 
-  const loadData = async () => {
-    await AsyncStorage.getItem('my-token')
-      .then(value => {
-        if (value != null) {
-          setToken(value);
-        }
-      })
-      .catch(err => {
-        console.log(err);
-      });
+  useEffect(() => {
+    console.log(token);
+  }, [token]);
+
+  const loadToken = async () => {
+    const myToken = await AsyncStorage.getItem('my-token');
+    setToken(myToken);
   };
 
-  const getBoardData = async (id: number) => {
+  const getBoardData = async (postId: number) => {
     try {
-      await axiosInstance
-        .get(`/board/post/${id}`)
-        .then(function (res: any) {
-          // setTitle(res.data.title);
-          // setContent(res.data.content);
-          console.log('오호', res.data);
-
-          // setDate(res.data.date);
+      await loadToken();
+      const boardData = await axiosInstance
+        .get(`/board/post/${postId}`,{
+          headers: {'x-access-token': token},
         })
-        .catch(function (error: any) {
-          console.log(error);
-        });
-    } catch (error) {
-      console.error(error);
+      
+      console.log(boardData.data.data); 
+      /**
+       * {"content": "문의내용수정",
+       *  "createdAt": "2023-10-09T11:16:17.142Z",
+       *  "id": 1,
+       *  "title": "문의제목수정",
+       *  "updatedAt": "2023-10-09T11:17:46.148Z", 
+       *  "userAccountUserId": 6} */
+
+      setTitle(boardData.data.data.title);
+      setContent(boardData.data.data.content);
+      setDate(boardData.data.data.updatedAt); // 수정 시간을 보여주면 좋을 것 같음
+
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -127,19 +128,19 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
       console.error(error);
     }
   };
-  const getCommentData = async ({id, page}: any) => {
+  const getCommentData = async (postId: number) => {
     try {
-      await axiosInstance
-        .get(`/board/comment/${id}/page/${page}/`)
-        .then(function (res: any) {
-          console.log(res.data);
-          // setCommentList(res.data.content);
+      await loadToken();
+      const commentData = await axiosInstance
+        .get(`/board/comment/${postId}`, {
+          headers: {'x-access-token': token},
         })
-        .catch(function (error: any) {
-          console.log(error);
-        });
-    } catch (error) {
-      console.error(error);
+      
+      console.log(commentData.data.data); // [{comment:{},editable:false},{comment:{},editable:true},...]
+      setCommentList(commentData.data.data);
+
+    } catch (err) {
+      console.error(err);
     }
   };
   const postCommentData = async () => {
