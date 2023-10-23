@@ -71,6 +71,9 @@ const MainScreen: React.FC<Props> = ({route, navigation}) => {
         </MenuContainer>
       ) : openMenu && !isLogin ? (
         <MenuContainer>
+          <MenuBox onPress={() => moveMenuScreen('CustomerService')}>
+            <MenuText>고객의{'\n'}소리</MenuText>
+          </MenuBox>
           <MenuBox onPress={() => moveMenuScreen('SignIn')}>
             <MenuText>로그인</MenuText>
           </MenuBox>
