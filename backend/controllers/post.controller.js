@@ -23,7 +23,7 @@ export function findAll(req, res) {
     })
     .catch((err) => {
         res.status(500).send({
-            message: err.message || "Some error occurred while retrieving tutorials.",
+            message: "Some error occurred while findAll: " + err.message,
         });
     });
 }
@@ -42,7 +42,7 @@ export function findOne(req, res) {
     })
     .catch((err) => {
         res.status(500).send({
-            message: "error retrieving Tutorial with id = " + id,
+            message: "post findone error: " + err.message,
         });
     });
 }
@@ -61,7 +61,7 @@ export function writePost(req, res) {
     })
     .catch((err) => {
         res.status(500).send({
-            message: err.message || "Write Error"
+            message: err.message || "Write Post Error"
         })
     });
 }
@@ -82,11 +82,12 @@ export function updatePost(req, res) {
             res.status(400).send({
                 message: "기존의 값과 같거나 권한이 없습니다."
             });
-        } else {
-            res.status(400).send({
-                message: "some error occurred"
-            });
         }
+    })
+    .catch(err => {
+        res.status(500).send({
+            message: "Update Post Error: "+err.message
+        });
     });
 }
 
@@ -106,12 +107,12 @@ export function deletePost(req, res) {
                 success: false,
                 message: "post를 찾지 못했거나 권한이 없습니다."
             })
-        } else {
-            res.status(400).send({
-                success: false,
-                message: "some error occurred"
-            });
         }
+    })
+    .catch(err => {
+        res.status(500).send({
+            message: "Delete Post Error: "+err.message
+        });
     });  
 
 }

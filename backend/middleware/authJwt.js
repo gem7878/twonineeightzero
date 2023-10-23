@@ -27,28 +27,33 @@ export function verifyToken (req, res, next) {
 export function editableRole (req, res, next) {
     let token = req.headers["x-access-token"];
 
-    if(!token) {
+    if(token === null) {
         req.editable = false;
-        next();
+        return next();
     }
 
     jwt.verify(token, config.secret, (err, decoded) => {
+        if(err) {
+            req.editable = false;
+            return next();
+        }
+
         User.findByPk(decoded.id).then(user => {
             user.getRoles().then(roles => {
                 for (let i = 0; i < roles.length; i++) {
                     if(roles[i].name === "moderator") {
                         req.editable = true;
-                        next();
+                        return next();
                     }
     
                     if(roles[i].name === "admin") {
                         req.editable = true;
-                        next();
+                        return next();
                     }
 
                     if(roles[i].name === "user") {
                         req.editable = decoded.id;
-                        next();
+                        return next();
                     }
                 }
             });
