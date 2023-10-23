@@ -65,7 +65,7 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
         })
       
       console.log(boardData.data.data); 
-      /**
+      /** 객체
        * {"content": "문의내용수정",
        *  "createdAt": "2023-10-09T11:16:17.142Z",
        *  "id": 1,
@@ -136,8 +136,15 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
           headers: {'x-access-token': token},
         })
       
-      console.log(commentData.data.data); // [{comment:{},editable:false},{comment:{},editable:true},...]
-      setCommentList(commentData.data.data);
+      console.log(commentData.data);
+      /** 배열
+       * [{"content": "댓글내용",
+       *  "updatedAt": "2023-10-23T05:59:25.173Z",
+       *  "userName": "아이디",
+       *  "editable": false},
+       *  {},...]
+       */
+      setCommentList(commentData.data);
 
     } catch (err) {
       console.error(err);
