@@ -1,5 +1,6 @@
 import db from "../models/index.js";
 const board = db.board;
+const User = db.user;
 
 export function findAll(req, res) {
     const pageNumber = req.params.num;
@@ -33,10 +34,21 @@ export function findOne(req, res) {
   
     // 수정 또는 삭제를 할 수 있는 역할인지 확인 
     // editable : admin, moderator --> true , user --> user_id
-    board.findByPk(id)
+    board.findByPk(id,{
+        include: [
+            {
+                model: User,
+                attributes: ['user_name'],
+            }
+        ]
+    })
     .then((data) => {
         res.status(200).send({
-            data,
+            "postId": data.id,
+            "title": data.title,
+            "content": data.content,
+            "updatedAt": data.updatedAt,
+            "userName": data.user_account.user_name,
             "editable" : typeof req.editable !== "boolean" ? (req.editable === data.userAccountUserId ? true : false) : req.editable,
         });
     })
