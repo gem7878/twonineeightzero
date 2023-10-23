@@ -16,14 +16,16 @@ export const bodyDatas = [
 ];
 const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
   const [isEditing, setIsEditing] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
+
+  const [contentId, setContentId] = useState();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [date, setDate] = useState('');
-  const [contentId, setContentId] = useState();
+  const [postUserName, setPostUserName] = useState('');
+  
   const [commment, setCommment] = useState('');
   const [commentList, setCommentList] = useState([]);
-  const [token, setToken] = useState<string | null>(null);
-  
 
 
   useEffect(() => {
@@ -35,17 +37,20 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
     })()
   }, [isEditing]);
 
-  useEffect(() => {
-    let today = new Date();
-    let formattedMonth =
-      today.getMonth() + 1 < 10
-        ? `0${today.getMonth() + 1}`
-        : `${today.getMonth() + 1}`;
-    let formattedDate =
-      today.getDate() < 10 ? `0${today.getDate()}` : `${today.getDate()}`;
+  const localDateTimeString = (utcString : string) => {
+    const utc = new Date(utcString).getTime(); 
+    const kst = new Date(utc + (9 * 60 * 60 * 1000));
 
-    // setDate(`${today.getFullYear()}-${formattedMonth}-${formattedDate}`);
-  }, [date]);
+    let formattedMonth =
+      kst.getMonth() + 1 < 10
+        ? `0${kst.getMonth() + 1}`
+        : `${kst.getMonth() + 1}`;
+    
+    let formattedDate =
+      kst.getDate() < 10 ? `0${kst.getDate()}` : `${kst.getDate()}`;
+
+    return `${kst.getFullYear()}/${formattedMonth}/${formattedDate} ${kst.getHours()}:${kst.getSeconds()}:${kst.getMilliseconds()}`;
+  };
 
   useEffect(() => {
     console.log(token);
@@ -64,18 +69,20 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
           headers: {'x-access-token': token},
         })
       
-      console.log(boardData.data.data); 
+      console.log(boardData.data); 
       /** 객체
-       * {"content": "문의내용수정",
-       *  "createdAt": "2023-10-09T11:16:17.142Z",
-       *  "id": 1,
-       *  "title": "문의제목수정",
-       *  "updatedAt": "2023-10-09T11:17:46.148Z", 
-       *  "userAccountUserId": 6} */
-
-      setTitle(boardData.data.data.title);
-      setContent(boardData.data.data.content);
-      setDate(boardData.data.data.updatedAt); // 수정 시간을 보여주면 좋을 것 같음
+       * {"postId":포스트아이디,
+       *  "title":"문의제목",
+       *  "content":"문의내용",
+       *  "updatedAt":"2023-10-23T05:58:58.511Z",
+       *  "userName":"아이디",
+       *  "editable":true}
+       */
+      setPostUserName(boardData.data.userName);
+      setTitle(boardData.data.title);
+      setContent(boardData.data.content);
+      setDate(localDateTimeString(boardData.data.updatedAt));
+      
 
     } catch (err) {
       console.error(err);
@@ -94,7 +101,6 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
       let formData = {
         title: title,
         content: content,
-        // date: `${today.getFullYear()}-${formattedMonth}-${formattedDate}`,
       };
       await axiosInstance
         .post(`/board/post/update/${contentId}`, formData, {
