@@ -26,8 +26,8 @@ router.delete("/post/delete/:id",
     postController.deletePost
 );
 
-router.get("/comment/:id/page/:num", 
-    [authJwt.verifyToken],
+router.get("/comment/:id", 
+    [authJwt.editableRole],
     commentController.findAll
 );
 
