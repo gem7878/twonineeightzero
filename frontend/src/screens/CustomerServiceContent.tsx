@@ -15,7 +15,8 @@ export const bodyDatas = [
   {제목: '제목3', 아이디: '아이디3', 날짜: '날짜3', 내용: '내용3'},
 ];
 const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
-  const [isEditing, setIsEditing] = useState(false);
+  const [isPostEditing, setIsPostEditing] = useState(false);
+  const [isCommentEditing, setIsCommentEditing] = useState(0);
   // const [token, setToken] = useState<string | null>(null);
 
   const [contentId, setContentId] = useState();
@@ -30,12 +31,11 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
 
   useEffect(() => {
     (async () => {
-      // console.log('오잉', route.params.id);
       setContentId(route.params.id);
       await getBoardData(route.params.id);
       await getCommentData(route.params.id);
     })();
-  }, [isEditing]);
+  }, [isPostEditing]);
 
   const localDateTimeString = (utcString: string) => {
     const utc = new Date(utcString).getTime();
@@ -90,16 +90,18 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
         title: title,
         content: content,
       };
-      const updated = await axiosInstance
-        .put(`/board/post/update/${contentId}`, formData, {
+      const updated = await axiosInstance.put(
+        `/board/post/update/${contentId}`,
+        formData,
+        {
           headers: {'x-access-token': token},
-        })
+        },
+      );
 
       if (updated.data.success == true) {
         Alert.alert('게시글 업데이트 완료!');
-        setIsEditing(false);
+        setIsPostEditing(false);
       }
-    
     } catch (error) {
       console.error(error);
     }
@@ -108,10 +110,12 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
   const deleteBoardData = async () => {
     try {
       const token = await loadToken();
-      const deleted = await axiosInstance
-        .delete(`/board/post/delete/${contentId}`, {
+      const deleted = await axiosInstance.delete(
+        `/board/post/delete/${contentId}`,
+        {
           headers: {'x-access-token': token},
-        })
+        },
+      );
 
       if (deleted.data.success == true) {
         Alert.alert('게시글 삭제 완료!');
@@ -149,12 +153,15 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
       let formData = {
         content: commment,
       };
-      const posted = await axiosInstance
-        .post(`/board/comment/${contentId}/write`, formData, {
+      const posted = await axiosInstance.post(
+        `/board/comment/${contentId}/write`,
+        formData,
+        {
           headers: {'x-access-token': token},
-        })
-      
-      if(posted.data.success === true) {
+        },
+      );
+
+      if (posted.data.success === true) {
         getCommentData(route.params.id);
         Alert.alert('댓글 작성 완료!');
       }
@@ -169,14 +176,17 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
       let formData = {
         content: content,
       };
-      const updated = await axiosInstance
-        .put(`/board/comment/update/${commentId}`, formData, {
+      const updated = await axiosInstance.put(
+        `/board/comment/update/${commentId}`,
+        formData,
+        {
           headers: {'x-access-token': token},
-        })
-      
-      if(updated.data.success === true) {
+        },
+      );
+
+      if (updated.data.success === true) {
         Alert.alert('댓글 업로드 완료!');
-        setIsEditing(false);
+        setIsPostEditing(false);
       }
     } catch (error) {
       console.error(error);
@@ -186,12 +196,14 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
   const deleteCommentData = async (commentId: string) => {
     try {
       const token = await loadToken();
-      const deleted = await axiosInstance
-        .delete(`/board/comment/delete/${commentId}`,{
+      const deleted = await axiosInstance.delete(
+        `/board/comment/delete/${commentId}`,
+        {
           headers: {'x-access-token': token},
-        })
+        },
+      );
 
-      if(deleted.data.success === true) {
+      if (deleted.data.success === true) {
         Alert.alert('댓글 삭제 완료!');
         getCommentData(route.params.id);
       }
@@ -204,7 +216,7 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
     <>
       <BackHeader />
       <CustomerServiceContentContainer>
-        {isEditing ? (
+        {isPostEditing ? (
           <>
             <Text>제목</Text>
             <TextInput
@@ -220,7 +232,7 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
             <TouchableOpacity onPress={() => updateBoardData()}>
               <Text>게시글 업데이트</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => setIsEditing(false)}>
+            <TouchableOpacity onPress={() => setIsPostEditing(false)}>
               <Text>취소</Text>
             </TouchableOpacity>
           </>
@@ -228,7 +240,7 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
           <>
             {isEditable && (
               <CustomerEditView>
-                <CustomerServiceButton onPress={() => setIsEditing(true)}>
+                <CustomerServiceButton onPress={() => setIsPostEditing(true)}>
                   <CustomerServiceText>편집하기</CustomerServiceText>
                 </CustomerServiceButton>
                 <CustomerServiceButton onPress={() => deleteBoardData()}>
@@ -252,34 +264,52 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
                 placeholder="댓글을 입력하세요"
                 onChangeText={value => setCommment(value)}
               />
-              <CustomerServiceButton onPress={() => postCommentData()}> 
-                <CustomerServiceText>
-                  확인
-                </CustomerServiceText>
+              <CustomerServiceButton onPress={() => postCommentData()}>
+                <CustomerServiceText>확인</CustomerServiceText>
               </CustomerServiceButton>
             </CustomerCommentView>
             {commentList.length > 0 &&
-              commentList.map((value : object, index : number) => {
+              commentList.map((value: object, index: number) => {
                 return (
                   <CustomerCommentList key={index}>
                     <CustomerCommentId>{value.userName}</CustomerCommentId>
-                    <CustomerCommentContent>
-                      {value.content}
-                    </CustomerCommentContent>
-                    {value.editable && (
-                      <CustomerCommentEdit>
-                        <CustomerCommentButton onPress={() => updateCommentData(value.commentId)}>
-                          <CustomerCommentButtonText>
-                            편집
-                          </CustomerCommentButtonText>
-                        </CustomerCommentButton>
-                        <CustomerCommentButton onPress={() => deleteCommentData(value.commentId)}>
-                          <CustomerCommentButtonText>
-                            삭제
-                          </CustomerCommentButtonText>
-                        </CustomerCommentButton>
-                      </CustomerCommentEdit>
+                    {isCommentEditing === index + 1 ? (
+                      <TextInput
+                        placeholder={value.content}
+                        onChangeText={inputValue => setCommment(inputValue)}
+                      />
+                    ) : (
+                      <CustomerCommentContent>
+                        {value.content}
+                      </CustomerCommentContent>
                     )}
+
+                    {value.editable &&
+                      (isCommentEditing === index + 1 ? (
+                        <CustomerCommentEdit>
+                          <CustomerCommentButton
+                            onPress={() => updateCommentData(value.commentId)}>
+                            <CustomerCommentButtonText>
+                              확인
+                            </CustomerCommentButtonText>
+                          </CustomerCommentButton>
+                        </CustomerCommentEdit>
+                      ) : (
+                        <CustomerCommentEdit>
+                          <CustomerCommentButton
+                            onPress={() => setIsCommentEditing(index + 1)}>
+                            <CustomerCommentButtonText>
+                              편집
+                            </CustomerCommentButtonText>
+                          </CustomerCommentButton>
+                          <CustomerCommentButton
+                            onPress={() => deleteCommentData(value.commentId)}>
+                            <CustomerCommentButtonText>
+                              삭제
+                            </CustomerCommentButtonText>
+                          </CustomerCommentButton>
+                        </CustomerCommentEdit>
+                      ))}
                   </CustomerCommentList>
                 );
               })}
