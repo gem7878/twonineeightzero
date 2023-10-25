@@ -51,7 +51,7 @@ const CustomerServiceWrite: React.FC<Props> = ({navigation}) => {
       let formData = {
         title: title,
         content: content,
-        // date: date,
+        // userName:
       };
       await axiosInstance
         .post('/board/post/write', formData, {

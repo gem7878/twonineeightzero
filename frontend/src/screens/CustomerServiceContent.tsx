@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Alert, Text, TextInput, TouchableOpacity} from 'react-native';
+import {Alert, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import styled from 'styled-components/native';
 import axiosInstance from '../apis/service/client';
 import {BackHeader} from '../components';
@@ -23,10 +23,10 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
   const [content, setContent] = useState('');
   const [date, setDate] = useState('');
   const [postUserName, setPostUserName] = useState('');
-  
+  const [isEditable, setIsEditable] = useState(false);
+
   const [commment, setCommment] = useState('');
   const [commentList, setCommentList] = useState([]);
-
 
   useEffect(() => {
     (async () => {
@@ -34,18 +34,18 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
       // setContentId(route.params.id);
       await getBoardData(route.params.id);
       await getCommentData(route.params.id);
-    })()
+    })();
   }, [isEditing]);
 
-  const localDateTimeString = (utcString : string) => {
-    const utc = new Date(utcString).getTime(); 
-    const kst = new Date(utc + (9 * 60 * 60 * 1000));
+  const localDateTimeString = (utcString: string) => {
+    const utc = new Date(utcString).getTime();
+    const kst = new Date(utc + 9 * 60 * 60 * 1000);
 
     let formattedMonth =
       kst.getMonth() + 1 < 10
         ? `0${kst.getMonth() + 1}`
         : `${kst.getMonth() + 1}`;
-    
+
     let formattedDate =
       kst.getDate() < 10 ? `0${kst.getDate()}` : `${kst.getDate()}`;
 
@@ -53,7 +53,7 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
   };
 
   useEffect(() => {
-    console.log(token);
+    // console.log(token);
   }, [token]);
 
   const loadToken = async () => {
@@ -64,12 +64,11 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
   const getBoardData = async (postId: number) => {
     try {
       await loadToken();
-      const boardData = await axiosInstance
-        .get(`/board/post/${postId}`,{
-          headers: {'x-access-token': token},
-        })
-      
-      console.log(boardData.data); 
+      const boardData = await axiosInstance.get(`/board/post/${postId}`, {
+        headers: {'x-access-token': token},
+      });
+
+      // console.log(boardData.data);
       /** 객체
        * {"postId":포스트아이디,
        *  "title":"문의제목",
@@ -82,21 +81,13 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
       setTitle(boardData.data.title);
       setContent(boardData.data.content);
       setDate(localDateTimeString(boardData.data.updatedAt));
-      
-
+      setIsEditable(boardData.data.editable);
     } catch (err) {
       console.error(err);
     }
   };
 
   const updateBoardData = async () => {
-    let today = new Date();
-    let formattedMonth =
-      today.getMonth() + 1 < 10
-        ? `0${today.getMonth() + 1}`
-        : `${today.getMonth() + 1}`;
-    let formattedDate =
-      today.getDate() < 10 ? `0${today.getDate()}` : `${today.getDate()}`;
     try {
       let formData = {
         title: title,
@@ -137,12 +128,11 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
   const getCommentData = async (postId: number) => {
     try {
       await loadToken();
-      const commentData = await axiosInstance
-        .get(`/board/comment/${postId}`, {
-          headers: {'x-access-token': token},
-        })
-      
-      console.log(commentData.data);
+      const commentData = await axiosInstance.get(`/board/comment/${postId}`, {
+        headers: {'x-access-token': token},
+      });
+
+      console.log('hello', commentData.data);
       /** 배열
        * [{"content": "댓글내용",
        *  "updatedAt": "2023-10-23T05:59:25.173Z",
@@ -151,7 +141,6 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
        *  {},...]
        */
       setCommentList(commentData.data);
-
     } catch (err) {
       console.error(err);
     }
@@ -243,17 +232,20 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
           </>
         ) : (
           <>
-            <CustomerEditView>
-              <CustomerServiceButton onPress={() => setIsEditing(true)}>
-                <CustomerServiceText>편집하기</CustomerServiceText>
-              </CustomerServiceButton>
-              <CustomerServiceButton onPress={() => deleteBoardData()}>
-                <CustomerServiceText>삭제하기</CustomerServiceText>
-              </CustomerServiceButton>
-            </CustomerEditView>
+            {isEditable && (
+              <CustomerEditView>
+                <CustomerServiceButton onPress={() => setIsEditing(true)}>
+                  <CustomerServiceText>편집하기</CustomerServiceText>
+                </CustomerServiceButton>
+                <CustomerServiceButton onPress={() => deleteBoardData()}>
+                  <CustomerServiceText>삭제하기</CustomerServiceText>
+                </CustomerServiceButton>
+              </CustomerEditView>
+            )}
             <CustomerTitleView>
               <CustomerTitleText>{title}</CustomerTitleText>
             </CustomerTitleView>
+            <CustomerDateText>{postUserName}</CustomerDateText>
             <CustomerContentView>
               <CustomerContentText>{content}</CustomerContentText>
             </CustomerContentView>
@@ -272,20 +264,31 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
                 </CustomerServiceText>
               </CustomerServiceButton>
             </CustomerCommentView>
-            <CustomerCommentList>
-              {/* {getCommentData.map((value, index) => {
-                return <Text>댓글1</Text>;
-              })} */}
-
-              <CustomerCommentEdit>
-                <TouchableOpacity>
-                  <Text>편집</Text>
-                </TouchableOpacity>
-                <TouchableOpacity>
-                  <Text>삭제</Text>
-                </TouchableOpacity>
-              </CustomerCommentEdit>
-            </CustomerCommentList>
+            {commentList.length > 0 &&
+              commentList.map((value, index) => {
+                return (
+                  <CustomerCommentList key={index}>
+                    <CustomerCommentId>{value.userName}</CustomerCommentId>
+                    <CustomerCommentContent>
+                      {value.content}
+                    </CustomerCommentContent>
+                    {value.editable && (
+                      <CustomerCommentEdit>
+                        <CustomerCommentButton>
+                          <CustomerCommentButtonText>
+                            편집
+                          </CustomerCommentButtonText>
+                        </CustomerCommentButton>
+                        <CustomerCommentButton>
+                          <CustomerCommentButtonText>
+                            삭제
+                          </CustomerCommentButtonText>
+                        </CustomerCommentButton>
+                      </CustomerCommentEdit>
+                    )}
+                  </CustomerCommentList>
+                );
+              })}
           </>
         )}
       </CustomerServiceContentContainer>
@@ -334,6 +337,7 @@ const CustomerCommentView = styled.View`
   justify-content: space-between;
   align-items: center;
   margin-top: 30px;
+  margin-bottom: 20px;
 `;
 const CustomerCommentInput = styled.TextInput`
   border: 1px solid black;
@@ -354,8 +358,30 @@ const CustomerServiceText = styled.Text`
 `;
 const CustomerCommentList = styled.View`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  gap: 20px;
   width: 70%;
+  margin-top: 5px;
+  align-items: center;
+`;
+const CustomerCommentId = styled.Text`
+  font-size: 12px;
+`;
+const CustomerCommentContent = styled.Text`
+  font-size: 17px;
+`;
+const CustomerCommentButton = styled.TouchableOpacity`
+  background-color: black;
+  width: 40px;
+  height: 20px;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  margin-left: 5px;
+`;
+const CustomerCommentButtonText = styled.Text`
+  color: white;
+  font-size: 12px;
 `;
 const CustomerCommentEdit = styled.View`
   display: flex;
