@@ -174,7 +174,7 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
     try {
       const token = await loadToken();
       let formData = {
-        content: content,
+        content: commment,
       };
       const updated = await axiosInstance.put(
         `/board/comment/update/${commentId}`,
@@ -187,6 +187,8 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
       if (updated.data.success === true) {
         Alert.alert('댓글 업로드 완료!');
         setIsPostEditing(false);
+        setIsCommentEditing(0);
+        return getCommentData(route.params.id);
       }
     } catch (error) {
       console.error(error);
@@ -220,14 +222,13 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
           <>
             <Text>제목</Text>
             <TextInput
+              defaultValue={title}
               onChangeText={value => setTitle(value)}
-              placeholder={title}
             />
             <Text>내용</Text>
             <TextInput
+              defaultValue={content}
               onChangeText={value => setContent(value)}
-              numberOfLines={6}
-              placeholder={content}
             />
             <TouchableOpacity onPress={() => updateBoardData()}>
               <Text>게시글 업데이트</Text>
@@ -275,7 +276,7 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
                     <CustomerCommentId>{value.userName}</CustomerCommentId>
                     {isCommentEditing === index + 1 ? (
                       <TextInput
-                        placeholder={value.content}
+                        defaultValue={value.content}
                         onChangeText={inputValue => setCommment(inputValue)}
                       />
                     ) : (
