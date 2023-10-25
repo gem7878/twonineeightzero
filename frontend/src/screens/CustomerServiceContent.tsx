@@ -16,7 +16,7 @@ export const bodyDatas = [
 ];
 const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [token, setToken] = useState<string | null>(null);
+  // const [token, setToken] = useState<string | null>(null);
 
   const [contentId, setContentId] = useState();
   const [title, setTitle] = useState('');
@@ -31,7 +31,7 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
   useEffect(() => {
     (async () => {
       // console.log('오잉', route.params.id);
-      // setContentId(route.params.id);
+      setContentId(route.params.id);
       await getBoardData(route.params.id);
       await getCommentData(route.params.id);
     })();
@@ -52,18 +52,14 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
     return `${kst.getFullYear()}/${formattedMonth}/${formattedDate} ${kst.getHours()}:${kst.getSeconds()}:${kst.getMilliseconds()}`;
   };
 
-  useEffect(() => {
-    // console.log(token);
-  }, [token]);
-
   const loadToken = async () => {
     const myToken = await AsyncStorage.getItem('my-token');
-    setToken(myToken);
+    return myToken;
   };
 
   const getBoardData = async (postId: number) => {
     try {
-      await loadToken();
+      const token = await loadToken();
       const boardData = await axiosInstance.get(`/board/post/${postId}`, {
         headers: {'x-access-token': token},
       });
@@ -89,52 +85,54 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
 
   const updateBoardData = async () => {
     try {
+      const token = await loadToken();
       let formData = {
         title: title,
         content: content,
       };
-      await axiosInstance
-        .post(`/board/post/update/${contentId}`, formData, {
+      const updated = await axiosInstance
+        .put(`/board/post/update/${contentId}`, formData, {
           headers: {'x-access-token': token},
         })
-        .then(function (res: any) {
-          console.log(res.data);
-          Alert.alert('게시글 업데이트 완료!');
-          return setIsEditing(false);
-        })
-        .catch(function (error: any) {
-          console.log(error);
-        });
+
+      if (updated.data.success == true) {
+        Alert.alert('게시글 업데이트 완료!');
+        setIsEditing(false);
+      }
+    
     } catch (error) {
       console.error(error);
     }
   };
+
   const deleteBoardData = async () => {
     try {
-      await axiosInstance
-        .delete(`/board/post/delete/${contentId}`)
-        .then(function (res: any) {
-          console.log(res.data);
-          Alert.alert('게시글 삭제 완료!');
-          return navigation.navigate('CustomerService');
+      const token = await loadToken();
+      const deleted = await axiosInstance
+        .delete(`/board/post/delete/${contentId}`, {
+          headers: {'x-access-token': token},
         })
-        .catch(function (error: any) {
-          console.log(error);
-        });
+
+      if (deleted.data.success == true) {
+        Alert.alert('게시글 삭제 완료!');
+        return navigation.navigate('CustomerService');
+      }
     } catch (error) {
       console.error(error);
     }
   };
   const getCommentData = async (postId: number) => {
     try {
-      await loadToken();
+      const token = await loadToken();
       const commentData = await axiosInstance.get(`/board/comment/${postId}`, {
         headers: {'x-access-token': token},
       });
 
       console.log('hello', commentData.data);
       /** 배열
-       * [{"content": "댓글내용",
+       * [{
+       *  "commentID": "댓글인덱스아이디",
+       *  "content": "댓글내용",
        *  "updatedAt": "2023-10-23T05:59:25.173Z",
        *  "userName": "아이디",
        *  "editable": false},
@@ -147,60 +145,56 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
   };
   const postCommentData = async () => {
     try {
+      const token = await loadToken();
       let formData = {
         content: commment,
-        // date: date,
       };
-      await axiosInstance
+      const posted = await axiosInstance
         .post(`/board/comment/${contentId}/write`, formData, {
           headers: {'x-access-token': token},
         })
-        .then(function (res: any) {
-          console.log(res.data);
-          return Alert.alert('댓글 작성 완료!');
-        })
-        .catch(function (error: any) {
-          console.log(error);
-        });
+      
+      if(posted.data.success === true) {
+        getCommentData(route.params.id);
+        Alert.alert('댓글 작성 완료!');
+      }
     } catch (error) {
       console.error(error);
     }
   };
 
-  const updateCommentData = async () => {
+  const updateCommentData = async (commentId: string) => {
     try {
+      const token = await loadToken();
       let formData = {
         content: content,
-        // date: `${today.getFullYear()}-${formattedMonth}-${formattedDate}`,
       };
-      await axiosInstance
-        .post(`/board/comment/update/${contentId}`, formData, {
+      const updated = await axiosInstance
+        .put(`/board/comment/update/${commentId}`, formData, {
           headers: {'x-access-token': token},
         })
-        .then(function (res: any) {
-          console.log(res.data);
-          Alert.alert('댓글 업로드 완료!');
-          return setIsEditing(false);
-        })
-        .catch(function (error: any) {
-          console.log(error);
-        });
+      
+      if(updated.data.success === true) {
+        Alert.alert('댓글 업로드 완료!');
+        setIsEditing(false);
+      }
     } catch (error) {
       console.error(error);
     }
   };
-  const deleteCommentData = async () => {
+
+  const deleteCommentData = async (commentId: string) => {
     try {
-      await axiosInstance
-        .delete(`/board/comment/delete/${contentId}`)
-        .then(function (res: any) {
-          console.log(res.data);
-          Alert.alert('댓글 삭제 완료!');
-          return navigation.navigate('CustomerService');
+      const token = await loadToken();
+      const deleted = await axiosInstance
+        .delete(`/board/comment/delete/${commentId}`,{
+          headers: {'x-access-token': token},
         })
-        .catch(function (error: any) {
-          console.log(error);
-        });
+
+      if(deleted.data.success === true) {
+        Alert.alert('댓글 삭제 완료!');
+        getCommentData(route.params.id);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -258,14 +252,14 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
                 placeholder="댓글을 입력하세요"
                 onChangeText={value => setCommment(value)}
               />
-              <CustomerServiceButton>
-                <CustomerServiceText onPress={() => postCommentData()}>
+              <CustomerServiceButton onPress={() => postCommentData()}> 
+                <CustomerServiceText>
                   확인
                 </CustomerServiceText>
               </CustomerServiceButton>
             </CustomerCommentView>
             {commentList.length > 0 &&
-              commentList.map((value, index) => {
+              commentList.map((value : object, index : number) => {
                 return (
                   <CustomerCommentList key={index}>
                     <CustomerCommentId>{value.userName}</CustomerCommentId>
@@ -274,12 +268,12 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
                     </CustomerCommentContent>
                     {value.editable && (
                       <CustomerCommentEdit>
-                        <CustomerCommentButton>
+                        <CustomerCommentButton onPress={() => updateCommentData(value.commentId)}>
                           <CustomerCommentButtonText>
                             편집
                           </CustomerCommentButtonText>
                         </CustomerCommentButton>
-                        <CustomerCommentButton>
+                        <CustomerCommentButton onPress={() => deleteCommentData(value.commentId)}>
                           <CustomerCommentButtonText>
                             삭제
                           </CustomerCommentButtonText>

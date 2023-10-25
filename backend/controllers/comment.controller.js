@@ -10,7 +10,7 @@ export async function findAll(req, res) {
   try {
     const data = await Comment.findAll({
       where: { customerBoardId: postId },
-      attributes: ["userAccountUserId", "content", "updatedAt"],
+      attributes: ["id", "userAccountUserId", "content", "updatedAt"],
       order: [["createdAt", "ASC"]],
       // offset: (pageNumber-1)*limit,
       // limit: limit,
@@ -28,6 +28,7 @@ export async function findAll(req, res) {
     const comments = await Promise.all(
       data.map(async (comment) => {
         return {
+          commentId: comment.id,
           content: comment.content,
           updatedAt: comment.updatedAt,
           userName: comment.user_account.user_name,
