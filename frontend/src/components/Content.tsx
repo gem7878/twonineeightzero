@@ -3,7 +3,7 @@ import React, {useEffect, useState} from 'react';
 import styled from 'styled-components/native';
 import {Congestion, Refresh} from './index';
 import {TouchableOpacity} from 'react-native-gesture-handler';
-import {Alert} from 'react-native';
+import {Alert, Text} from 'react-native';
 
 interface StationContainerStyle {
   $number: string;
@@ -247,52 +247,75 @@ const Content: React.FC<ContentProps> = ({
               </>
             )}
           </WhiteText>
-          {/* {isOpenPos ? (
+          {isOpenPos ? (
             <FacilityView>
-              {Object.keys(currentFacilitiesList[isOpenPos]).map(
-                (value, index) => {
-                  return <WhiteText key={index}>{value}</WhiteText>;
-                },
+              {currentFacilitiesList.length > 0 ? (
+                Object.keys(currentFacilitiesList[isOpenPos]).map(
+                  (value, index) => {
+                    return <WhiteText key={index}>{value}</WhiteText>;
+                  },
+                )
+              ) : (
+                <></>
               )}
             </FacilityView>
           ) : (
             <FacilityView>
-              {Object.keys(currentFacilitiesList['에스컬레이터'])?.length >
-                0 && (
-                <TouchableOpacity onPress={() => setIsOpenPos('에스컬레이터')}>
-                  <FacilityPointIcon
-                    source={require('../assets/icons/facility/EscalatorPoint.png')}
-                    alt=""
-                  />
-                </TouchableOpacity>
+              {Object.keys(currentFacilitiesList).includes('에스컬레이터') ? (
+                Object.keys(currentFacilitiesList['에스컬레이터'])?.length >
+                  0 && (
+                  <TouchableOpacity
+                    onPress={() => setIsOpenPos('에스컬레이터')}>
+                    <FacilityPointIcon
+                      source={require('../assets/icons/facility/EscalatorPoint.png')}
+                      alt=""
+                    />
+                  </TouchableOpacity>
+                )
+              ) : (
+                <></>
               )}
-              {Object.keys(currentFacilitiesList['엘레베이터'])?.length > 0 && (
-                <TouchableOpacity onPress={() => setIsOpenPos('엘레베이터')}>
-                  <FacilityPointIcon
-                    source={require('../assets/icons/facility/ElevatorPoint.png')}
-                    alt=""
-                  />
-                </TouchableOpacity>
+              {Object.keys(currentFacilitiesList).includes('엘레베이터') ? (
+                Object.keys(currentFacilitiesList['엘레베이터'])?.length >
+                  0 && (
+                  <TouchableOpacity onPress={() => setIsOpenPos('엘레베이터')}>
+                    <FacilityPointIcon
+                      source={require('../assets/icons/facility/ElevatorPoint.png')}
+                      alt=""
+                    />
+                  </TouchableOpacity>
+                )
+              ) : (
+                <></>
               )}
-              {Object.keys(currentFacilitiesList['화장실'])?.length > 0 && (
-                <TouchableOpacity onPress={() => setIsOpenPos('화장실')}>
-                  <FacilityPointIcon
-                    source={require('../assets/icons/facility/RestroomPoint.png')}
-                    alt=""
-                  />
-                </TouchableOpacity>
+              {Object.keys(currentFacilitiesList).includes('화장실') ? (
+                Object.keys(currentFacilitiesList['화장실'])?.length > 0 && (
+                  <TouchableOpacity onPress={() => setIsOpenPos('화장실')}>
+                    <FacilityPointIcon
+                      source={require('../assets/icons/facility/RestroomPoint.png')}
+                      alt=""
+                    />
+                  </TouchableOpacity>
+                )
+              ) : (
+                <></>
               )}
-              {Object.keys(currentFacilitiesList['장애인화장실'])?.length >
-                0 && (
-                <TouchableOpacity onPress={() => setIsOpenPos('장애인화장실')}>
-                  <FacilityPointIcon
-                    source={require('../assets/icons/facility/DisabledPoint.png')}
-                    alt=""
-                  />
-                </TouchableOpacity>
+              {Object.keys(currentFacilitiesList).includes('장애인화장실') ? (
+                Object.keys(currentFacilitiesList['장애인화장실'])?.length >
+                  0 && (
+                  <TouchableOpacity
+                    onPress={() => setIsOpenPos('장애인화장실')}>
+                    <FacilityPointIcon
+                      source={require('../assets/icons/facility/DisabledPoint.png')}
+                      alt=""
+                    />
+                  </TouchableOpacity>
+                )
+              ) : (
+                <></>
               )}
             </FacilityView>
-          )} */}
+          )}
         </FacilityContainer>
         <Congestion
           stationName={stationName}
@@ -422,7 +445,6 @@ const LineNumberListBox = styled.View`
 const LineNumberListItem = styled.Text<StationContainerStyle>`
   width: 35px;
   height: 100%;
-  box-sizing: border-box;
   border: ${props =>
     props.$number === '5'
       ? '4px solid #996CAC'
