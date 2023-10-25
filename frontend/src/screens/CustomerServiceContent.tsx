@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Alert, Text, TextInput, TouchableOpacity} from 'react-native';
+import {Alert, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import styled from 'styled-components/native';
 import axiosInstance from '../apis/service/client';
 import {BackHeader} from '../components';
@@ -16,85 +16,82 @@ export const bodyDatas = [
 ];
 const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
   const [isEditing, setIsEditing] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
+
+  const [contentId, setContentId] = useState();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [date, setDate] = useState('');
-  const [contentId, setContentId] = useState();
+  const [postUserName, setPostUserName] = useState('');
+  const [isEditable, setIsEditable] = useState(false);
+
   const [commment, setCommment] = useState('');
   const [commentList, setCommentList] = useState([]);
-  const [token, setToken] = useState('');
 
   useEffect(() => {
-    loadData();
-  }, []);
-
-  useEffect(() => {
-    setContentId(route.params.id);
-    if (!isEditing) {
-      getBoardData(route.params.id);
-      getCommentData({id: route.params.id, page: route.params.page});
-    }
-    // setTitle(bodyDatas[route.params.id].제목);
-    // setContent(bodyDatas[route.params.id].내용);
-    // setDate(bodyDatas[route.params.id].날짜);
+    (async () => {
+      // console.log('오잉', route.params.id);
+      // setContentId(route.params.id);
+      await getBoardData(route.params.id);
+      await getCommentData(route.params.id);
+    })();
   }, [isEditing]);
 
-  useEffect(() => {
-    let today = new Date();
+  const localDateTimeString = (utcString: string) => {
+    const utc = new Date(utcString).getTime();
+    const kst = new Date(utc + 9 * 60 * 60 * 1000);
+
     let formattedMonth =
-      today.getMonth() + 1 < 10
-        ? `0${today.getMonth() + 1}`
-        : `${today.getMonth() + 1}`;
+      kst.getMonth() + 1 < 10
+        ? `0${kst.getMonth() + 1}`
+        : `${kst.getMonth() + 1}`;
+
     let formattedDate =
-      today.getDate() < 10 ? `0${today.getDate()}` : `${today.getDate()}`;
+      kst.getDate() < 10 ? `0${kst.getDate()}` : `${kst.getDate()}`;
 
-    // setDate(`${today.getFullYear()}-${formattedMonth}-${formattedDate}`);
-  }, [date]);
-
-  const loadData = async () => {
-    await AsyncStorage.getItem('my-token')
-      .then(value => {
-        if (value != null) {
-          setToken(value);
-        }
-      })
-      .catch(err => {
-        console.log(err);
-      });
+    return `${kst.getFullYear()}/${formattedMonth}/${formattedDate} ${kst.getHours()}:${kst.getSeconds()}:${kst.getMilliseconds()}`;
   };
 
-  const getBoardData = async (id: number) => {
-    try {
-      await axiosInstance
-        .get(`/board/post/${id}`)
-        .then(function (res: any) {
-          // setTitle(res.data.title);
-          // setContent(res.data.content);
-          console.log('오호', res.data);
+  useEffect(() => {
+    // console.log(token);
+  }, [token]);
 
-          // setDate(res.data.date);
-        })
-        .catch(function (error: any) {
-          console.log(error);
-        });
-    } catch (error) {
-      console.error(error);
+  const loadToken = async () => {
+    const myToken = await AsyncStorage.getItem('my-token');
+    setToken(myToken);
+  };
+
+  const getBoardData = async (postId: number) => {
+    try {
+      await loadToken();
+      const boardData = await axiosInstance.get(`/board/post/${postId}`, {
+        headers: {'x-access-token': token},
+      });
+
+      // console.log(boardData.data);
+      /** 객체
+       * {"postId":포스트아이디,
+       *  "title":"문의제목",
+       *  "content":"문의내용",
+       *  "updatedAt":"2023-10-23T05:58:58.511Z",
+       *  "userName":"아이디",
+       *  "editable":true}
+       */
+      setPostUserName(boardData.data.userName);
+      setTitle(boardData.data.title);
+      setContent(boardData.data.content);
+      setDate(localDateTimeString(boardData.data.updatedAt));
+      setIsEditable(boardData.data.editable);
+    } catch (err) {
+      console.error(err);
     }
   };
 
   const updateBoardData = async () => {
-    let today = new Date();
-    let formattedMonth =
-      today.getMonth() + 1 < 10
-        ? `0${today.getMonth() + 1}`
-        : `${today.getMonth() + 1}`;
-    let formattedDate =
-      today.getDate() < 10 ? `0${today.getDate()}` : `${today.getDate()}`;
     try {
       let formData = {
         title: title,
         content: content,
-        // date: `${today.getFullYear()}-${formattedMonth}-${formattedDate}`,
       };
       await axiosInstance
         .post(`/board/post/update/${contentId}`, formData, {
@@ -128,19 +125,24 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
       console.error(error);
     }
   };
-  const getCommentData = async ({id, page}: any) => {
+  const getCommentData = async (postId: number) => {
     try {
-      await axiosInstance
-        .get(`/board/comment/${id}/page/${page}/`)
-        .then(function (res: any) {
-          console.log(res.data);
-          // setCommentList(res.data.content);
-        })
-        .catch(function (error: any) {
-          console.log(error);
-        });
-    } catch (error) {
-      console.error(error);
+      await loadToken();
+      const commentData = await axiosInstance.get(`/board/comment/${postId}`, {
+        headers: {'x-access-token': token},
+      });
+
+      console.log('hello', commentData.data);
+      /** 배열
+       * [{"content": "댓글내용",
+       *  "updatedAt": "2023-10-23T05:59:25.173Z",
+       *  "userName": "아이디",
+       *  "editable": false},
+       *  {},...]
+       */
+      setCommentList(commentData.data);
+    } catch (err) {
+      console.error(err);
     }
   };
   const postCommentData = async () => {
@@ -230,17 +232,20 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
           </>
         ) : (
           <>
-            <CustomerEditView>
-              <CustomerServiceButton onPress={() => setIsEditing(true)}>
-                <CustomerServiceText>편집하기</CustomerServiceText>
-              </CustomerServiceButton>
-              <CustomerServiceButton onPress={() => deleteBoardData()}>
-                <CustomerServiceText>삭제하기</CustomerServiceText>
-              </CustomerServiceButton>
-            </CustomerEditView>
+            {isEditable && (
+              <CustomerEditView>
+                <CustomerServiceButton onPress={() => setIsEditing(true)}>
+                  <CustomerServiceText>편집하기</CustomerServiceText>
+                </CustomerServiceButton>
+                <CustomerServiceButton onPress={() => deleteBoardData()}>
+                  <CustomerServiceText>삭제하기</CustomerServiceText>
+                </CustomerServiceButton>
+              </CustomerEditView>
+            )}
             <CustomerTitleView>
               <CustomerTitleText>{title}</CustomerTitleText>
             </CustomerTitleView>
+            <CustomerDateText>{postUserName}</CustomerDateText>
             <CustomerContentView>
               <CustomerContentText>{content}</CustomerContentText>
             </CustomerContentView>
@@ -259,20 +264,31 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
                 </CustomerServiceText>
               </CustomerServiceButton>
             </CustomerCommentView>
-            <CustomerCommentList>
-              {/* {getCommentData.map((value, index) => {
-                return <Text>댓글1</Text>;
-              })} */}
-
-              <CustomerCommentEdit>
-                <TouchableOpacity>
-                  <Text>편집</Text>
-                </TouchableOpacity>
-                <TouchableOpacity>
-                  <Text>삭제</Text>
-                </TouchableOpacity>
-              </CustomerCommentEdit>
-            </CustomerCommentList>
+            {commentList.length > 0 &&
+              commentList.map((value, index) => {
+                return (
+                  <CustomerCommentList key={index}>
+                    <CustomerCommentId>{value.userName}</CustomerCommentId>
+                    <CustomerCommentContent>
+                      {value.content}
+                    </CustomerCommentContent>
+                    {value.editable && (
+                      <CustomerCommentEdit>
+                        <CustomerCommentButton>
+                          <CustomerCommentButtonText>
+                            편집
+                          </CustomerCommentButtonText>
+                        </CustomerCommentButton>
+                        <CustomerCommentButton>
+                          <CustomerCommentButtonText>
+                            삭제
+                          </CustomerCommentButtonText>
+                        </CustomerCommentButton>
+                      </CustomerCommentEdit>
+                    )}
+                  </CustomerCommentList>
+                );
+              })}
           </>
         )}
       </CustomerServiceContentContainer>
@@ -321,6 +337,7 @@ const CustomerCommentView = styled.View`
   justify-content: space-between;
   align-items: center;
   margin-top: 30px;
+  margin-bottom: 20px;
 `;
 const CustomerCommentInput = styled.TextInput`
   border: 1px solid black;
@@ -341,8 +358,30 @@ const CustomerServiceText = styled.Text`
 `;
 const CustomerCommentList = styled.View`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  gap: 20px;
   width: 70%;
+  margin-top: 5px;
+  align-items: center;
+`;
+const CustomerCommentId = styled.Text`
+  font-size: 12px;
+`;
+const CustomerCommentContent = styled.Text`
+  font-size: 17px;
+`;
+const CustomerCommentButton = styled.TouchableOpacity`
+  background-color: black;
+  width: 40px;
+  height: 20px;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  margin-left: 5px;
+`;
+const CustomerCommentButtonText = styled.Text`
+  color: white;
+  font-size: 12px;
 `;
 const CustomerCommentEdit = styled.View`
   display: flex;

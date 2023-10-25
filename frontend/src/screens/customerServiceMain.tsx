@@ -3,6 +3,7 @@ import {Text} from 'react-native';
 import styled from 'styled-components/native';
 import {BackHeader} from '../components';
 import axiosInstance from '../apis/service/client';
+import {useIsFocused} from '@react-navigation/native';
 
 interface Props {
   route: any;
@@ -25,16 +26,20 @@ const CustomerServiceMain: React.FC<Props> = ({route, navigation}) => {
   const [page, setPage] = useState(1);
   const [postData, setPostData] = useState([]);
 
+  const isFocused = useIsFocused();
+
   useEffect(() => {
-    getPosFindAll();
-  }, []);
+    if (isFocused) {
+      getPosFindAll();
+    }
+  }, [isFocused]);
 
   const getPosFindAll = async () => {
     try {
       await axiosInstance
         .get(`/board/post/page/${page}`)
         .then(function (res: any) {
-          console.log('안녕', res.data.data);
+          //console.log('안녕', res.data.data);
 
           setPostData(res.data.data);
         })

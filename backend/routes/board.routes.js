@@ -16,18 +16,18 @@ router.post("/post/write",
     postController.writePost
 );
 
-router.post("/post/update/:id",
+router.put("/post/update/:id",
     [authJwt.verifyToken],
     postController.updatePost
 );
 
-router.post("/post/delete/:id",
+router.delete("/post/delete/:id",
     [authJwt.verifyToken],
     postController.deletePost
 );
 
-router.get("/comment/:id/page/:num", 
-    [authJwt.verifyToken],
+router.get("/comment/:id", 
+    [authJwt.editableRole],
     commentController.findAll
 );
 
@@ -36,12 +36,12 @@ router.post("/comment/:id/write",
     commentController.writeComment
 );
 
-router.post("/comment/update/:id", 
+router.put("/comment/update/:id", 
     [authJwt.verifyToken],
     commentController.updateComment
 );
 
-router.post("/comment/delete/:id",
+router.delete("/comment/delete/:id",
     [authJwt.verifyToken],
     commentController.deleteComment
 );
