@@ -53,31 +53,32 @@ const CustomerServiceWrite: React.FC<Props> = ({navigation}) => {
         content: content,
         // userName:
       };
-      await axiosInstance
+      const res = await axiosInstance
         .post('/board/post/write', formData, {
           headers: {'x-access-token': token},
         })
-        .then(function (res: any) {
-          console.log(res.data);
-          Alert.alert('게시글 작성 완료!');
-          return moveMenuScreen('CustomerService');
-        })
-        .catch(function (error: any) {
-          console.log(error);
-        });
-    } catch (error) {
-      console.error(error);
+      console.log(res.data);
+      Alert.alert('게시글 작성 완료!');
+      moveMenuScreen('CustomerService');
+
+    } catch (error:any) {
+      console.error(error.response.data.message);
+      Alert.alert('권한이 없습니다.', '로그인하시겠습니까?',
+      [
+        {
+          text: '아니요',
+          onPress: () => moveMenuScreen('CustomerService'),
+        },
+        {
+          text: '네',
+          onPress: () => moveMenuScreen('SignIn'),
+        }
+      ])
     }
   };
   return (
     <>
-      <BackHeaderContainer>
-        <TouchableOpacity onPress={() => moveMenuScreen('CustomerService')}>
-          <BackBox>
-            <BackIcon source={require('../assets/icons/BackIcon.png')} />
-          </BackBox>
-        </TouchableOpacity>
-      </BackHeaderContainer>
+      <BackHeader/>
       <CustomerServiceWriteContainer>
         <BigText>새로운 글쓰기</BigText>
         <MiddleText>제목</MiddleText>
@@ -130,21 +131,4 @@ const SubmitText = styled.Text`
   padding: 10px;
   background-color: #00ffd1;
 `
-const BackHeaderContainer = styled.View`
-  width: 100%;
-  height: 15%;
-  display: flex;
-  justify-content: center;
-  padding-left: 20px;
-`;
-const BackBox = styled.View`
-  width: 40px;
-  height: 40px;
-`;
-const BackIcon = styled.Image`
-  width: 100%;
-  height: 100%;
-  /* width: 35px;
-  height: 35px; */
-`;
 export default CustomerServiceWrite;
