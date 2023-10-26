@@ -11,7 +11,7 @@ interface Props {
 }
 
 interface commentDataInterface {
-  commentID: any,
+  commentId: number,
   content: string,
   updatedAt: string,
   userName: string,
@@ -147,7 +147,7 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
         },
       );
 
-      if (posted.data.success === true) {
+      if (posted.data.success == true) {
         getCommentData(route.params.id);
         setCommment('');
         Keyboard.dismiss();
@@ -158,9 +158,10 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
     }
   };
 
-  const updateCommentData = async (commentID: string) => {
+  const updateCommentData = async (commentID: number) => {
     try {
       const token = await loadToken();
+      console.log(commentID);
       let formData = {
         content: commment,
       };
@@ -172,18 +173,18 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
         },
       );
 
-      if (updated.data.success === true) {
+      if (updated.data.success == true) {
         setIsPostEditing(false);
         setIsCommentEditing(0);
         getCommentData(contentId);
-        Alert.alert('댓글 업로드 완료!');
+        Alert.alert('댓글 수정 완료!');
       }
     } catch (error) {
       console.error(error);
     }
   };
 
-  const deleteCommentData = async (commentID: string) => {
+  const deleteCommentData = async (commentID: number) => {
     try {
       const token = await loadToken();
       const deleted = await axiosInstance.delete(
@@ -277,7 +278,7 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
                       (isCommentEditing === index + 1 ? (
                         <CustomerCommentEdit>
                           <CustomerCommentButton
-                            onPress={() => updateCommentData(value.commentID)}>
+                            onPress={() => updateCommentData(value.commentId)}>
                             <CustomerCommentButtonText>
                               확인
                             </CustomerCommentButtonText>
@@ -292,7 +293,7 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
                             </CustomerCommentButtonText>
                           </CustomerCommentButton>
                           <CustomerCommentButton
-                            onPress={() => deleteCommentData(value.commentID)}>
+                            onPress={() => deleteCommentData(value.commentId)}>
                             <CustomerCommentButtonText>
                               삭제
                             </CustomerCommentButtonText>
