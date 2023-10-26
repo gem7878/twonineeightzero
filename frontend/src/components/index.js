@@ -9,3 +9,6 @@ export {default as Refresh} from './main/Refresh.tsx';
 
 // goback
 export {default as BackHeader} from './backHeader.tsx';
+
+// table
+export {default as TableComponent} from './TableComponent.tsx';
