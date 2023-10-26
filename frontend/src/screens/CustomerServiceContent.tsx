@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Alert, Text, TextInput, TouchableOpacity, View} from 'react-native';
+import {Alert, Text, TextInput, TouchableOpacity, View, Keyboard, ScrollView, TouchableWithoutFeedback} from 'react-native';
 import styled from 'styled-components/native';
 import axiosInstance from '../apis/service/client';
 import {BackHeader} from '../components';
@@ -9,17 +9,21 @@ interface Props {
   route: any;
   navigation: any;
 }
-export const bodyDatas = [
-  {제목: '제목1', 아이디: '아이디1', 날짜: '날짜1', 내용: '내용1'},
-  {제목: '제목2', 아이디: '아이디2', 날짜: '날짜2', 내용: '내용2'},
-  {제목: '제목3', 아이디: '아이디3', 날짜: '날짜3', 내용: '내용3'},
-];
+
+interface commentDataInterface {
+  commentID: any,
+  content: string,
+  updatedAt: string,
+  userName: string,
+  editable: boolean,
+}
+
 const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
   const [isPostEditing, setIsPostEditing] = useState(false);
   const [isCommentEditing, setIsCommentEditing] = useState(0);
   // const [token, setToken] = useState<string | null>(null);
 
-  const [contentId, setContentId] = useState();
+  const [contentId, setContentId] = useState<any>();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [date, setDate] = useState('');
@@ -27,11 +31,11 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
   const [isEditable, setIsEditable] = useState(false);
 
   const [commment, setCommment] = useState('');
-  const [commentList, setCommentList] = useState([]);
+  const [commentList, setCommentList] = useState<Array<commentDataInterface>>([]);
 
   useEffect(() => {
+    setContentId(route.params.id);
     (async () => {
-      setContentId(route.params.id);
       await getBoardData(route.params.id);
       await getCommentData(route.params.id);
     })();
@@ -64,15 +68,6 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
         headers: {'x-access-token': token},
       });
 
-      // console.log(boardData.data);
-      /** 객체
-       * {"postId":포스트아이디,
-       *  "title":"문의제목",
-       *  "content":"문의내용",
-       *  "updatedAt":"2023-10-23T05:58:58.511Z",
-       *  "userName":"아이디",
-       *  "editable":true}
-       */
       setPostUserName(boardData.data.userName);
       setTitle(boardData.data.title);
       setContent(boardData.data.content);
@@ -133,15 +128,6 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
       });
 
       console.log('hello', commentData.data);
-      /** 배열
-       * [{
-       *  "commentID": "댓글인덱스아이디",
-       *  "content": "댓글내용",
-       *  "updatedAt": "2023-10-23T05:59:25.173Z",
-       *  "userName": "아이디",
-       *  "editable": false},
-       *  {},...]
-       */
       setCommentList(commentData.data);
     } catch (err) {
       console.error(err);
@@ -163,6 +149,8 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
 
       if (posted.data.success === true) {
         getCommentData(route.params.id);
+        setCommment('');
+        Keyboard.dismiss();
         Alert.alert('댓글 작성 완료!');
       }
     } catch (error) {
@@ -170,14 +158,14 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
     }
   };
 
-  const updateCommentData = async (commentId: string) => {
+  const updateCommentData = async (commentID: string) => {
     try {
       const token = await loadToken();
       let formData = {
         content: commment,
       };
       const updated = await axiosInstance.put(
-        `/board/comment/update/${commentId}`,
+        `/board/comment/update/${commentID}`,
         formData,
         {
           headers: {'x-access-token': token},
@@ -185,21 +173,21 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
       );
 
       if (updated.data.success === true) {
-        Alert.alert('댓글 업로드 완료!');
         setIsPostEditing(false);
         setIsCommentEditing(0);
-        return getCommentData(route.params.id);
+        getCommentData(contentId);
+        Alert.alert('댓글 업로드 완료!');
       }
     } catch (error) {
       console.error(error);
     }
   };
 
-  const deleteCommentData = async (commentId: string) => {
+  const deleteCommentData = async (commentID: string) => {
     try {
       const token = await loadToken();
       const deleted = await axiosInstance.delete(
-        `/board/comment/delete/${commentId}`,
+        `/board/comment/delete/${commentID}`,
         {
           headers: {'x-access-token': token},
         },
@@ -270,7 +258,7 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
               </CustomerServiceButton>
             </CustomerCommentView>
             {commentList.length > 0 &&
-              commentList.map((value: object, index: number) => {
+              commentList.map((value, index) => {
                 return (
                   <CustomerCommentList key={index}>
                     <CustomerCommentId>{value.userName}</CustomerCommentId>
@@ -289,7 +277,7 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
                       (isCommentEditing === index + 1 ? (
                         <CustomerCommentEdit>
                           <CustomerCommentButton
-                            onPress={() => updateCommentData(value.commentId)}>
+                            onPress={() => updateCommentData(value.commentID)}>
                             <CustomerCommentButtonText>
                               확인
                             </CustomerCommentButtonText>
@@ -304,13 +292,14 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
                             </CustomerCommentButtonText>
                           </CustomerCommentButton>
                           <CustomerCommentButton
-                            onPress={() => deleteCommentData(value.commentId)}>
+                            onPress={() => deleteCommentData(value.commentID)}>
                             <CustomerCommentButtonText>
                               삭제
                             </CustomerCommentButtonText>
                           </CustomerCommentButton>
                         </CustomerCommentEdit>
-                      ))}
+                      )
+                    )}
                   </CustomerCommentList>
                 );
               })}
@@ -323,8 +312,6 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
 
 const CustomerServiceContentContainer = styled.View`
   width: 100%;
-  display: flex;
-  flex-direction: column;
   align-items: center;
 `;
 const CustomerTitleView = styled.View`
