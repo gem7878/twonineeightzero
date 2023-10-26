@@ -10,6 +10,12 @@ interface Props {
   navigation: any;
 }
 
+interface boardDataInterface {
+  id: any,
+  title: string,
+  createdAt: string,
+}
+
 export const heads = [
   '번호',
   '제목',
@@ -24,7 +30,7 @@ export const bodyDatas = [
 ];
 const CustomerServiceMain: React.FC<Props> = ({route, navigation}) => {
   const [page, setPage] = useState(1);
-  const [postData, setPostData] = useState([]);
+  const [postData, setPostData] = useState<Array<boardDataInterface>>([]);
 
   const isFocused = useIsFocused();
 
