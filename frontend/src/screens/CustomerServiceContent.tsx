@@ -208,24 +208,28 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
       <BackHeader />
       <CustomerServiceContentContainer>
         {isPostEditing ? (
-          <>
-            <Text>제목</Text>
-            <TextInput
+          <CustomerServiceWriteContainer>
+            <BigText>글 수정하기</BigText>
+            <MiddleText>제목</MiddleText>
+            <CustomerServiceInput
               defaultValue={title}
               onChangeText={value => setTitle(value)}
             />
-            <Text>내용</Text>
-            <TextInput
+            <MiddleText>내용</MiddleText>
+            <CustomerServiceInput
               defaultValue={content}
               onChangeText={value => setContent(value)}
+              numberOfLines={10}
             />
-            <TouchableOpacity onPress={() => updateBoardData()}>
-              <Text>게시글 업데이트</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => setIsPostEditing(false)}>
-              <Text>취소</Text>
-            </TouchableOpacity>
-          </>
+            <ButtonContainer>
+              <SubmitButton onPress={() => updateBoardData()}>
+                <SubmitText>게시글 업데이트</SubmitText>
+              </SubmitButton>
+              <SubmitButton onPress={() => setIsPostEditing(false)}>
+                <SubmitText>취소</SubmitText>
+              </SubmitButton>
+            </ButtonContainer>
+          </CustomerServiceWriteContainer>
         ) : (
           <>
             {isEditable && (
@@ -400,4 +404,41 @@ const CustomerCommentEdit = styled.View`
   display: flex;
   flex-direction: row;
 `;
+
+const CustomerServiceWriteContainer = styled.View`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 5px;
+  padding: 5px;
+`;
+const CustomerServiceInput = styled.TextInput`
+  border: 1px solid black;
+  width: 80%;
+`;
+const BigText = styled.Text`
+  font-size: 20px;
+  color: black;
+`
+const MiddleText = styled.Text`
+  width: 80%;
+  color: black;
+  font-size: 16px;
+  margin: 10px;
+`
+const ButtonContainer = styled.View`
+  flexDirection: row;
+`
+const SubmitButton = styled.TouchableOpacity`
+  margin-top:15px;
+`
+const SubmitText = styled.Text`
+  color: black;
+  font-size: 16px;
+  margin: 5px;
+  padding: 10px;
+  background-color: #00ffd1;
+`
+
 export default CustomerServiceContent;

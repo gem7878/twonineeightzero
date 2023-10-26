@@ -73,20 +73,21 @@ const CustomerServiceWrite: React.FC<Props> = ({navigation}) => {
     <>
       <BackHeader />
       <CustomerServiceWriteContainer>
-        <Text>제목</Text>
+        <BigText>새로운 글쓰기</BigText>
+        <MiddleText>제목</MiddleText>
         <CustomerServiceInput
           onChangeText={value => setTitle(value)}
           placeholder="제목을 입력하세요"
         />
-        <Text>내용</Text>
+        <MiddleText>내용</MiddleText>
         <CustomerServiceInput
           onChangeText={value => setContent(value)}
-          numberOfLines={6}
+          numberOfLines={10}
           placeholder="내용을 입력하세요"
         />
-        <TouchableOpacity onPress={() => postBoardData()}>
-          <Text>게시글 작성</Text>
-        </TouchableOpacity>
+        <SubmitButton onPress={() => postBoardData()}>
+          <SubmitText>게시글 작성</SubmitText>
+        </SubmitButton>
       </CustomerServiceWriteContainer>
     </>
   );
@@ -96,11 +97,32 @@ const CustomerServiceWriteContainer = styled.View`
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%;
+  margin: 5px;
+  padding: 5px;
 `;
 const CustomerServiceInput = styled.TextInput`
   border: 1px solid black;
   width: 80%;
 `;
+const BigText = styled.Text`
+  font-size: 20px;
+  color: black;
+`
+const MiddleText = styled.Text`
+  width: 80%;
+  color: black;
+  font-size: 16px;
+  margin: 10px;
+`
+const SubmitButton = styled.TouchableOpacity`
+  margin:10px;
+`
+const SubmitText = styled.Text`
+  color: black;
+  font-size: 16px;
+  margin: 10px;
+  padding: 10px;
+  background-color: #00ffd1;
+`
 
 export default CustomerServiceWrite;
