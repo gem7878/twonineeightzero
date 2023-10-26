@@ -10,15 +10,32 @@ export function findAll(req, res) {
         order: [['createdAt', 'DESC']],
         offset: (pageNumber-1)*limit,
         limit: limit,
+        include: [
+            {
+              model: User,
+              attributes: ["user_name"],
+            },
+        ],
     })
-    .then((data) => {
+    .then(async (data) => {
         const countPage = Math.ceil(data.count / limit);
         if (pageNumber > countPage) res.status(400).send({message: "잘못된 페이지입니다."});
         else {
+
+            const datas = await Promise.all(
+                data.rows.map(async (post) => {
+                  return {
+                    postId: post.id,
+                    title: post.title,
+                    userName: post.user_account.user_name,
+                  };
+                })
+              );
+
             res.status(200).send({
                 "countAllPost": data.count,
                 "countPage": Math.ceil(data.count / limit),
-                "data": data.rows
+                "data": datas
             });
         }
     })

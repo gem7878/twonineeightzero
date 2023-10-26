@@ -1,9 +1,10 @@
-import React, {useEffect, useState} from 'react';
-import {Text} from 'react-native';
+import React, {useEffect, useReducer, useState} from 'react';
+import {TouchableOpacity, Text, ScrollView, Alert, View, RefreshControl} from 'react-native';
 import styled from 'styled-components/native';
-import {BackHeader} from '../components';
+import {BackHeader, TableComponent} from '../components';
 import axiosInstance from '../apis/service/client';
 import {useIsFocused} from '@react-navigation/native';
+import { BorderlessButton } from 'react-native-gesture-handler';
 
 interface Props {
   route: any;
@@ -11,10 +12,12 @@ interface Props {
 }
 
 interface boardDataInterface {
-  id: any,
+  postId: number,
   title: string,
-  createdAt: string,
+  userName: string,
 }
+
+type Action = { type: 'reset' } | { type: 'addItem'; payload: Array<BorderlessButton> };
 
 export const heads = [
   '번호',
@@ -28,84 +31,136 @@ export const bodyDatas = [
   {제목: '제목2', 아이디: '아이디2', 날짜: '날짜2', 내용: '내용2'},
   {제목: '제목3', 아이디: '아이디3', 날짜: '날짜3', 내용: '내용3'},
 ];
+
+const reducer = (state: Array<boardDataInterface>, action: any) => {
+  switch (action.type) {
+    case 'reset':
+      return [];
+    case 'newItem':
+      return [...action.payload];
+    case 'addItem':
+      return [...state, ...action.payload];
+    default:
+      return state;
+  }
+};
+
 const CustomerServiceMain: React.FC<Props> = ({route, navigation}) => {
   const [page, setPage] = useState(1);
-  const [postData, setPostData] = useState<Array<boardDataInterface>>([]);
+  const [postData, disPatch] = useReducer(reducer, []);
+  const [countPage, setCountPage] = useState<number>(0);
+  const [countAllPost, setCountAllPost] = useState<number>(0);
+  const [refreshing, setRefreshing] = useState(false);
 
   const isFocused = useIsFocused();
 
   useEffect(() => {
-    if (isFocused) {
-      getPosFindAll();
-    }
-  }, [isFocused]);
+    getPostFindAll(page);
+  }, [])
 
-  const getPosFindAll = async () => {
+  useEffect(() => {
+    console.log('총 포스트 수: '+countAllPost);
+  }, [countAllPost])
+
+  // 새로고침 함수
+  const onRefresh = () => {
+    setRefreshing(true);
+    setTimeout(() => {
+      getPostFindAll(1,'newItem');
+      setPage(1);
+      setRefreshing(false);
+    }, 2000);
+    
+  }
+
+  const getPostFindAll = async (page: number, type: string = 'addItem') => {
     try {
-      await axiosInstance
+      const res = await axiosInstance
         .get(`/board/post/page/${page}`)
-        .then(function (res: any) {
-          //console.log('안녕', res.data.data);
 
-          setPostData(res.data.data);
-        })
-        .catch(function (error: any) {
-          console.log(error);
-        });
+      disPatch({ type: type, payload: res.data.data}); 
+      setCountPage(res.data.countPage);
+      setCountAllPost(res.data.countAllPost);
     } catch (error) {
       console.error(error);
     }
   };
+
   return (
+    <>
+    <BackHeader />
     <CustomerServiceContainer>
-      <BackHeader />
       <CustomerServiceTitle>고객의 소리</CustomerServiceTitle>
-      <WriteButton onPress={() => navigation.navigate('CustomerServiceWrite')}>
-        <WriteButtonText>글쓰기</WriteButtonText>
+      <WriteButton>
+        <TouchableOpacity onPress={() => navigation.replace('CustomerServiceWrite')}>
+          <WriteButtonText>글쓰기</WriteButtonText>
+        </TouchableOpacity>
       </WriteButton>
-      <BoardContainer>
-        <BoardHeader>
-          <BoardData>
-            <Text>제목</Text>
-          </BoardData>
-        </BoardHeader>
-        <BoardBody>
-          {postData.map((value, index) => {
-            return (
-              <BoardRow
-                key={index}
-                onPress={() =>
-                  navigation.navigate('CustomerServiceContent', {
-                    id: value.id,
-                    page: page,
-                  })
-                }>
-                <BoardData key={index}>
-                  <Text>{value.title}</Text>
-                </BoardData>
-              </BoardRow>
-            );
-          })}
-        </BoardBody>
-      </BoardContainer>
     </CustomerServiceContainer>
+    <Container>
+      <TableComponent 
+        index='번호' 
+        title='제목' 
+        userName='글쓴이' 
+        disabled={true} 
+        onPressFunction={()=> {}} 
+        isTitle={true}
+      />
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+          />
+        }
+      >
+        <ScrollContent>
+          {postData.map((value, idx) => 
+            (<TableComponent 
+              key={idx}
+              index={countAllPost-idx} 
+              title={value.title} 
+              userName={value.userName}
+              disabled={false} onPressFunction={async ()=> {
+                navigation.navigate('CustomerServiceContent', {
+                  id: value.postId
+                });
+              }}
+            />))}
+          <MoreButton
+            onPress={async () => {
+              if(page+1 <= countPage) {
+                setPage(page+1);
+                getPostFindAll(page+1);
+              } else {
+                Alert.alert('마지막 글입니다.');
+              }
+            }}
+          >
+            <MoreText>더보기</MoreText>
+          </MoreButton>
+        </ScrollContent>
+      </ScrollView>
+    </Container>
+    </>
   );
 };
 
-const CustomerServiceContainer = styled.View`
+const CustomerServiceContainer = styled.View` 
   width: 100%;
-  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
 `;
 const CustomerServiceTitle = styled.Text`
   font-size: 20px;
-  /* margin-top: 10px; */
+  margin-bottom: 20px;
 `;
-const WriteButton = styled.TouchableOpacity`
-  margin-top: 30px;
+const WriteButton = styled.View`
   width: 88%;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
 `;
 const WriteButtonText = styled.Text`
   width: 45px;
@@ -114,37 +169,25 @@ const WriteButtonText = styled.Text`
   color: white;
   text-align: center;
 `;
-const BoardContainer = styled.View`
-  width: 88%;
-  height: 90%;
-  margin-top: 10px;
+const Container = styled.View`
+  flex: 1;
+  padding: 10px;
+  margin: 10px;
 `;
-const BoardHeader = styled.View`
-  height: 10%;
-  max-height: 40px;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-around;
-  align-items: center;
-  background-color: #00ffd1;
+const ScrollContent = styled.View`
+  flex-grow: 1;
+  justify-content: space-between;
 `;
-const BoardBody = styled.View`
-  display: flex;
-  flex-direction: column;
-  border: 1px solid #00ffd1;
-`;
-const BoardRow = styled.TouchableOpacity`
+const MoreButton = styled.TouchableOpacity`
   height: 40px;
   display: flex;
   flex-direction: row;
   justify-content: space-around;
-  border: 1px solid #00ffd1;
+  background-color: rgb(150,150,150);
+  padding: 10px;
 `;
-const BoardData = styled.View`
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+const MoreText = styled.Text`
+  color: white;
 `;
 
 export default CustomerServiceMain;
