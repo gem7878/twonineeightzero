@@ -55,7 +55,7 @@ const CustomerServiceMain: React.FC<Props> = ({route, navigation}) => {
   const isFocused = useIsFocused();
 
   useEffect(() => {
-    getPostFindAll(page);
+    getPostFindAll(1,'newItem');
   }, [])
 
   useEffect(() => {
@@ -81,18 +81,18 @@ const CustomerServiceMain: React.FC<Props> = ({route, navigation}) => {
       disPatch({ type: type, payload: res.data.data}); 
       setCountPage(res.data.countPage);
       setCountAllPost(res.data.countAllPost);
-    } catch (error) {
-      console.error(error);
+    } catch (error:any) {
+      console.error(error.response.data.message);
     }
   };
 
   return (
     <>
-    <BackHeader />
+    <BackHeader/>
     <CustomerServiceContainer>
       <CustomerServiceTitle>고객의 소리</CustomerServiceTitle>
       <WriteButton>
-        <TouchableOpacity onPress={() => navigation.replace('CustomerServiceWrite')}>
+        <TouchableOpacity onPress={() => navigation.navigate('CustomerServiceWrite')}>
           <WriteButtonText>글쓰기</WriteButtonText>
         </TouchableOpacity>
       </WriteButton>
