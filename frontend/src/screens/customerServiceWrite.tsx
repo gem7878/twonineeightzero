@@ -71,7 +71,13 @@ const CustomerServiceWrite: React.FC<Props> = ({navigation}) => {
   };
   return (
     <>
-      <BackHeader />
+      <BackHeaderContainer>
+        <TouchableOpacity onPress={() => moveMenuScreen('CustomerService')}>
+          <BackBox>
+            <BackIcon source={require('../assets/icons/BackIcon.png')} />
+          </BackBox>
+        </TouchableOpacity>
+      </BackHeaderContainer>
       <CustomerServiceWriteContainer>
         <BigText>새로운 글쓰기</BigText>
         <MiddleText>제목</MiddleText>
@@ -124,5 +130,21 @@ const SubmitText = styled.Text`
   padding: 10px;
   background-color: #00ffd1;
 `
-
+const BackHeaderContainer = styled.View`
+  width: 100%;
+  height: 15%;
+  display: flex;
+  justify-content: center;
+  padding-left: 20px;
+`;
+const BackBox = styled.View`
+  width: 40px;
+  height: 40px;
+`;
+const BackIcon = styled.Image`
+  width: 100%;
+  height: 100%;
+  /* width: 35px;
+  height: 35px; */
+`;
 export default CustomerServiceWrite;
