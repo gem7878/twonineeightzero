@@ -17,7 +17,8 @@ export async function getCongestions(req, res) {
 
 function getFileContents(searchTerm) {
     const results = [];
-    let today = new Date();
+    const utc = new Date().getTime();
+    const today = new Date(utc + 9 * 60 * 60 * 1000); // utc -> kst
     let hours = today.getHours();
     let minutes = today.getMinutes();
   
