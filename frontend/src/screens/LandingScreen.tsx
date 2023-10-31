@@ -28,45 +28,46 @@ const LandingScreen: React.FC<Props> = ({navigation}) => {
   const [heverIndex, setHoverIndex] = useState(-1);
 
   useEffect(() => {
-    const requestLocationPermission = async () => {
-      try {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-          {
-            title: 'Location Permission',
-            message: 'This app needs access to your location.',
-            buttonNeutral: 'Ask Me Later',
-            buttonNegative: 'Cancel',
-            buttonPositive: 'OK',
-          },
-        );
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          Geolocation.getCurrentPosition(
-            position => {
-              console.log('Current Position:', position);
-              const {latitude, longitude} = position.coords;
-              setLat(latitude);
-              setLon(longitude);
-            },
-            error => {
-              console.log('Error getting current position:', error);
-            },
-            {
-              enableHighAccuracy: true,
-              timeout: 15000,
-              maximumAge: 10000,
-            },
-          );
-        } else {
-          console.log('Location permission denied');
-        }
-      } catch (error) {
-        console.log('Error requesting location permission:', error);
-      }
-    };
-
     requestLocationPermission();
   }, []);
+
+  const requestLocationPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        {
+          title: 'Location Permission',
+          message: 'This app needs access to your location.',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        Geolocation.getCurrentPosition(
+          position => {
+            console.log('Current Position:', position);
+            const {latitude, longitude} = position.coords;
+            setLat(latitude);
+            setLon(longitude);
+          },
+          error => {
+            console.log('Error getting current position:', error);
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 10000,
+          },
+        );
+      } else {
+        console.log('Location permission denied');
+      }
+    } catch (error) {
+      console.log('Error requesting location permission:', error);
+    }
+  };
+  
   useEffect(() => {
     // 경도 위도에 따른 지하철역 검색
     const handleSearch = async () => {
@@ -160,6 +161,7 @@ const LandingScreen: React.FC<Props> = ({navigation}) => {
         lon: lon,
         stationName: stationName,
         stationNum: stationNum,
+        reLocation: requestLocationPermission,
       });
     }
   };

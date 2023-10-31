@@ -20,27 +20,34 @@ const MainScreen: React.FC<Props> = ({route, navigation}) => {
 
   const logout = async () => {
     await AsyncStorage.removeItem('my-token');
+    await AsyncStorage.removeItem('my-expiration');
     setIsLogin(false);
   };
 
   const isFocused = useIsFocused();
-
   useEffect(() => {
-    if (isFocused) {
-      loadData();
+    if(isFocused) {
+      loadUserData();
     }
   }, [isFocused]);
 
-  const loadData = async () => {
-    await AsyncStorage.getItem('my-token')
-      .then(value => {
-        if (value != null) {
-          setIsLogin(true);
-        }
-      })
-      .catch(err => {
-        console.log(err);
-      });
+  const loadUserData = async () => {
+    console.log("loaduserdata");
+    const myToken : any = await AsyncStorage.getItem('my-token');
+    const expirationTime : any = await AsyncStorage.getItem('my-expiration');
+    if (myToken !== null && expirationTime !== null) {
+      console.log(new Date());
+      console.log(new Date(expirationTime));
+      if(new Date() > new Date(expirationTime)) {
+        await AsyncStorage.removeItem('my-token');
+        await AsyncStorage.removeItem('my-expiration');
+        setIsLogin(false);
+      } else {
+        setIsLogin(true);
+      }
+    } else {
+      setIsLogin(false);
+    }
   };
 
   return (
@@ -58,6 +65,7 @@ const MainScreen: React.FC<Props> = ({route, navigation}) => {
         searchStationName={route.params.stationName}
         searchStationNum={route.params.stationNum}
         navigation={navigation}
+        reLocation={route.params.reLocation}
       />
 
       {openMenu && isLogin ? (

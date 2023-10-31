@@ -15,6 +15,7 @@ interface ContentProps {
   searchStationName: any;
   searchStationNum: any;
   navigation: any;
+  reLocation: Function;
 }
 
 interface IFDetail {
@@ -42,6 +43,7 @@ const Content: React.FC<ContentProps> = ({
   searchStationName,
   searchStationNum,
   navigation,
+  reLocation,
 }) => {
   const [currentFacilitiesList, setCurrentFacilitiesList] = useState<any>([]);
   const [preFacilitiesList, setPreFacilitiesList] = useState<any>([]);
@@ -134,17 +136,6 @@ const Content: React.FC<ContentProps> = ({
     currentStationNum: string,
     currentStation: string,
   ) => {
-    // 호선도 매개변수로 넘어가게함
-    /** (예시) selectedLine으로 호선 버튼 선택되게 하면 되고 , data는 층별로 더 자세하게 수정함.
-     * {"lines":["5","6","경의선","공항철도"],
-     * "selectedLine":"5",
-     * "data":{
-     * "에스컬레이터":{"지하1층":[{"상하행구분":"상행","상세위치":"(B1)B1대합실"},{"상하행구분":"상행","상세위치":"(B1)B1대합실"},{"상하행구분":"하행","상세위치":"(B1)"},{"상하행구분":"하행","상세위치":"(B1)"}],"지하3층":[{"상하행구분":"상행","상세위치":"(B3)"},{"상하행구분":"상행","상세위치":"(B3)"}],"지하2층":[{"상하행구분":"하행","상세위치":"(B2)"},{"상하행구분":"하행","상세위치":"(B2)"},{"상하행구분":"상행","상세위치":"(B2)"},{"상하행구분":"상행","상세위치":"(B2)"}],"지상1층":[{"상하행구분":"하행","상세위치":"(F1)4번출입구"}]},
-     * "엘레베이터":{"지하1층":[{"구분":1,"상세위치":"(B1-B3)승강장"},{"구분":2,"상세위치":"(F1-B1)2번 출입구"}],"지하2층":[{"구분":1,"상세위치":"(B1-B3)승강장"}],"지하3층":[{"구분":1,"상세위치":"(B1-B3)승강장"}],"지상1층":[{"구분":2,"상세위치":"(F1-B1)2번 출입구"}]},
-     * "장애인화장실":{"지하1층":[{"게이트내외":"외","상세위치":" 대합실 1층 3번출구 앞"}]},
-     * "화장실":{"지하1층":[{"게이트내외":"외","상세위치":" 대합실 1층 3번출구 앞"}]}
-     * }}
-     */
     await axiosInstance
       .get(`/api/facility/${currentStationNum}/${currentStation}`)
       .then(function (res: any) {
@@ -198,7 +189,7 @@ const Content: React.FC<ContentProps> = ({
   return (
     <ContentContainer>
       <ContentHeader>
-        <Refresh lat={lat} lon={lon} />
+        <Refresh lat={lat} lon={lon} reLocation={reLocation}/>
         <LineNumberListContainer>
           <LineNumberListBox>
             {currentLines.map((value: string, index: number) => {
@@ -221,17 +212,17 @@ const Content: React.FC<ContentProps> = ({
       <ContentMain>
         <StationContainer $number={current.호선}>
           <StationBox onPress={() => moveStationName(preStation)}>
-            <StationText>&lt;&nbsp;&nbsp;</StationText>
-            <StationText>{preStation}</StationText>
+            <StationText textLength={5}>&lt;&nbsp;&nbsp;</StationText>
+            <StationText textLength={preStation.length}>{preStation}</StationText>
           </StationBox>
           <StationMainBox $number={current.호선}>
-            <BlackText>
+            <BlackText textLength={stationName.length}>
               {current.호선} {stationName}
             </BlackText>
           </StationMainBox>
           <StationBox onPress={() => moveStationName(nextStation)}>
-            <StationText>{nextStation}</StationText>
-            <StationText>&nbsp;&nbsp;&gt;</StationText>
+            <StationText textLength={nextStation.length}>{nextStation}</StationText>
+            <StationText textLength={5}>&nbsp;&nbsp;&gt;</StationText>
           </StationBox>
         </StationContainer>
         <FacilityHeader>역 내 주요 시설</FacilityHeader>
@@ -239,11 +230,11 @@ const Content: React.FC<ContentProps> = ({
           <WhiteText>
             {isOpenPos ? (
               <>
-                <PointText>{stationName}역</PointText> {isOpenPos}의 위치
+                <PointText textLength={5}>{stationName}역</PointText> {isOpenPos}의 위치
               </>
             ) : (
               <>
-                <PointText>{stationName}역</PointText> 의 주요 시설물
+                <PointText textLength={5}>{stationName}역</PointText> 의 주요 시설물
               </>
             )}
           </WhiteText>
@@ -325,7 +316,7 @@ const Content: React.FC<ContentProps> = ({
         <FacilityPreNextContainer>
           <FacilityBox>
             <WhiteText>
-              <PointText>{preStation}역</PointText> 의 시설물
+              <PointText textLength={preStation.length}>{preStation}역</PointText> 의 시설물
             </WhiteText>
             <FacilityList>
               {preFacilitiesList.map((list: any, index: number) => {
@@ -367,7 +358,7 @@ const Content: React.FC<ContentProps> = ({
           </FacilityBox>
           <FacilityBox>
             <WhiteText>
-              <PointText>{nextStation}역</PointText> 의 시설물
+              <PointText textLength={nextStation.length}>{nextStation}역</PointText> 의 시설물
             </WhiteText>
             <FacilityList>
               {nextFacilitiesList.map((list: any, index: number) => {
@@ -415,11 +406,13 @@ const Content: React.FC<ContentProps> = ({
 const WhiteText = styled.Text`
   color: white;
 `;
-const BlackText = styled.Text`
+const BlackText = styled.Text<{ textLength: number }>`
   color: black;
+  font-size: ${(props) => (props.textLength >=7 ? '10px' : '14px')};
 `;
-const PointText = styled.Text`
+const PointText = styled.Text<{ textLength: number }>`
   color: #00ffd1;
+  font-size: ${(props) => (props.textLength >=6 ? '11px' : '14px')};
 `;
 const ContentContainer = styled.View`
   width: 100%;
@@ -498,8 +491,9 @@ const StationBox = styled.TouchableOpacity`
   align-items: center;
   justify-content: center;
 `;
-const StationText = styled.Text`
+const StationText = styled.Text<{ textLength: number }>`
   color: black;
+  font-size: ${(props) => (props.textLength >=6 ? '10px' : '14px')};
 `;
 const StationMainBox = styled.View<StationContainerStyle>`
   width: 40%;
