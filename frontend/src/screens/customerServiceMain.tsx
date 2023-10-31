@@ -55,8 +55,10 @@ const CustomerServiceMain: React.FC<Props> = ({route, navigation}) => {
   const isFocused = useIsFocused();
 
   useEffect(() => {
-    getPostFindAll(1,'newItem');
-  }, [])
+    if(isFocused) {
+      getPostFindAll(1,'newItem');
+    }
+  }, [isFocused])
 
   useEffect(() => {
     console.log('총 포스트 수: '+countAllPost);
