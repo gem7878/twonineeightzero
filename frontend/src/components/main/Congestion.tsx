@@ -21,7 +21,7 @@ const Congestion: React.FC<CongestionProps> = ({
   // const [week, setWeek] = useState<string>('평일');
   // const [upPoint, setUpPoint] = useState<string>('상선');
   // list
-  let stationNumList: string[] = [];
+  // let stationNumList: string[] = [];
   // const [upPointList, setUpPointList] = useState<string>('상선');
 
   useEffect(() => {
@@ -41,8 +41,10 @@ const Congestion: React.FC<CongestionProps> = ({
       <CongestionBoxBorder>
         <CongestionBox>
           <BlackText>
-            {stationNumList}
-            {stationName}역의 평균적인 혼잡도는 {congestion}%입니다.
+            <BlackText textLength={stationName.length}>
+              {stationName}역
+            </BlackText>
+            의 평균적인 혼잡도는 {congestion}%입니다.
           </BlackText>
           <CongestionListContianer>
             {data.map((value: string[], index: number) => {
