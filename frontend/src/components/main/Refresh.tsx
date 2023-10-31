@@ -5,8 +5,9 @@ import {searchAdress} from '../../apis/service/kakaoClient'; // 카카오API
 interface RefreshProps {
   lat: any;
   lon: any;
+  reLocation: Function;
 }
-const Refresh: React.FC<RefreshProps> = ({lat, lon}) => {
+const Refresh: React.FC<RefreshProps> = ({lat, lon, reLocation}) => {
 
   const [location, setLocation] = useState('');
   useEffect(() => {
@@ -27,7 +28,9 @@ const Refresh: React.FC<RefreshProps> = ({lat, lon}) => {
     <RefreshContainer>
       <RefreshText>현재위치 : </RefreshText>
       <RefreshText>{location}</RefreshText>
-      <Image source={require('../../assets/icons/Refresh.png')} alt='' />
+      <ImageButton onPress={() => reLocation()}>
+        <IconImage source={require('../../assets/icons/Refresh.png')} alt=''/>
+      </ImageButton>
     </RefreshContainer>
   );
 };
@@ -40,5 +43,9 @@ const RefreshContainer = styled.View`
 const RefreshText = styled.Text`
   color: white;
 `;
-
+const ImageButton = styled.TouchableOpacity`
+`
+const IconImage = styled.Image`
+  margin: 4px;
+`
 export default Refresh;
