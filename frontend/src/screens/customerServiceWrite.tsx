@@ -62,18 +62,21 @@ const CustomerServiceWrite: React.FC<Props> = ({navigation}) => {
       moveMenuScreen('CustomerService');
 
     } catch (error:any) {
-      console.error(error.response.data.message);
-      Alert.alert('권한이 없습니다.', '로그인하시겠습니까?',
-      [
-        {
-          text: '아니요',
-          onPress: () => moveMenuScreen('CustomerService'),
-        },
-        {
-          text: '네',
-          onPress: () => moveMenuScreen('SignIn'),
-        }
-      ])
+      if(error.response.status === 403) {
+        Alert.alert('권한이 없습니다.', '로그인하시겠습니까?',
+        [
+          {
+            text: '아니요',
+            onPress: () => moveMenuScreen('CustomerService'),
+          },
+          {
+            text: '네',
+            onPress: () => moveMenuScreen('SignIn'),
+          }
+        ])
+      } else {
+        Alert.alert(error.response.data.message);
+      }
     }
   };
   return (

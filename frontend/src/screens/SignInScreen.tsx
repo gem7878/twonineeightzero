@@ -26,10 +26,11 @@ const SignInScreen: React.FC = () => {
         user_name: data.ID,
         user_password: data.Password,
       })
-      .then(function (res: any) {
+      .then(async (res: any) => {
         if (res.status === 200) {
           console.log(res.data.user_name + ' 로그인 성공했습니다.');
-          AsyncStorage.setItem('my-token', res.data.accessToken);
+          await AsyncStorage.setItem('my-token', res.data.accessToken);
+          await AsyncStorage.setItem('my-expiration', new Date(new Date().getTime() + (60*1000)).toISOString());
           goBack();
         }
       })

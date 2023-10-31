@@ -41,6 +41,10 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
     })();
   }, [isPostEditing]);
 
+  const moveMenuScreen = (menu: string) => {
+    navigation.navigate(menu);
+  };
+
   const localDateTimeString = (utcString: string) => {
     const utc = new Date(utcString).getTime();
     const kst = new Date(utc + 9 * 60 * 60 * 1000);
@@ -57,8 +61,37 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
   };
 
   const loadToken = async () => {
-    const myToken = await AsyncStorage.getItem('my-token');
-    return myToken;
+    console.log("load token");
+    const myToken : any = await AsyncStorage.getItem('my-token');
+    const expirationTime : any = await AsyncStorage.getItem('my-expiration');
+    if (myToken !== null && expirationTime !== null) {
+      console.log(new Date());
+      console.log(new Date(expirationTime));
+      if(new Date() >= new Date(expirationTime)) {
+        await AsyncStorage.removeItem('my-token');
+        await AsyncStorage.removeItem('my-expiration');
+        Alert.alert('권한이 없습니다.', '로그인하시겠습니까?',
+        [
+          {
+            text: '아니요',
+            onPress: () => moveMenuScreen('CustomerService'),
+          },
+          {
+            text: '네',
+            onPress: () => moveMenuScreen('SignIn'),
+          }
+        ])
+        setIsEditable(false);
+        setIsPostEditing(false);
+        return null;
+      } else {
+        return myToken;
+      }
+    } else {
+      setIsEditable(false);
+      setIsPostEditing(false);
+      return null;
+    }
   };
 
   const getBoardData = async (postId: number) => {
@@ -73,8 +106,8 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
       setContent(boardData.data.content);
       setDate(localDateTimeString(boardData.data.updatedAt));
       setIsEditable(boardData.data.editable);
-    } catch (err) {
-      console.error(err);
+    } catch (error:any) {
+      console.error(error.response.data.message);
     }
   };
 
@@ -97,8 +130,22 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
         Alert.alert('게시글 업데이트 완료!');
         setIsPostEditing(false);
       }
-    } catch (error) {
-      console.error(error);
+    } catch (error:any) {
+      if(error.response.status === 403) {
+        Alert.alert('권한이 없습니다.', '로그인하시겠습니까?',
+        [
+          {
+            text: '아니요',
+            onPress: () => moveMenuScreen('CustomerService'),
+          },
+          {
+            text: '네',
+            onPress: () => moveMenuScreen('SignIn'),
+          }
+        ])
+      } else {
+        Alert.alert(error.response.data.message);
+      }
     }
   };
 
@@ -116,8 +163,22 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
         Alert.alert('게시글 삭제 완료!');
         return navigation.navigate('CustomerService');
       }
-    } catch (error) {
-      console.error(error);
+    } catch (error:any) {
+      if(error.response.status === 403) {
+        Alert.alert('권한이 없습니다.', '로그인하시겠습니까?',
+        [
+          {
+            text: '아니요',
+            onPress: () => moveMenuScreen('CustomerService'),
+          },
+          {
+            text: '네',
+            onPress: () => moveMenuScreen('SignIn'),
+          }
+        ])
+      } else {
+        Alert.alert(error.response.data.message);
+      }
     }
   };
   const getCommentData = async (postId: number) => {
@@ -129,8 +190,8 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
 
       console.log('hello', commentData.data);
       setCommentList(commentData.data);
-    } catch (err) {
-      console.error(err);
+    } catch (error:any) {
+      console.error(error.response.data.message);
     }
   };
   const postCommentData = async () => {
@@ -153,8 +214,22 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
         Keyboard.dismiss();
         Alert.alert('댓글 작성 완료!');
       }
-    } catch (error) {
-      console.error(error);
+    } catch (error:any) {
+      if(error.response.status === 403) {
+        Alert.alert('권한이 없습니다.', '로그인하시겠습니까?',
+        [
+          {
+            text: '아니요',
+            onPress: () => moveMenuScreen('CustomerService'),
+          },
+          {
+            text: '네',
+            onPress: () => moveMenuScreen('SignIn'),
+          }
+        ])
+      } else {
+        Alert.alert(error.response.data.message);
+      }
     }
   };
 
@@ -179,8 +254,22 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
         getCommentData(contentId);
         Alert.alert('댓글 수정 완료!');
       }
-    } catch (error) {
-      console.error(error);
+    } catch (error:any) {
+      if(error.response.status === 403) {
+        Alert.alert('권한이 없습니다.', '로그인하시겠습니까?',
+        [
+          {
+            text: '아니요',
+            onPress: () => moveMenuScreen('CustomerService'),
+          },
+          {
+            text: '네',
+            onPress: () => moveMenuScreen('SignIn'),
+          }
+        ])
+      } else {
+        Alert.alert(error.response.data.message);
+      }
     }
   };
 
@@ -198,8 +287,22 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
         Alert.alert('댓글 삭제 완료!');
         getCommentData(route.params.id);
       }
-    } catch (error) {
-      console.error(error);
+    } catch (error:any) {
+      if(error.response.status === 403) {
+        Alert.alert('권한이 없습니다.', '로그인하시겠습니까?',
+        [
+          {
+            text: '아니요',
+            onPress: () => moveMenuScreen('CustomerService'),
+          },
+          {
+            text: '네',
+            onPress: () => moveMenuScreen('SignIn'),
+          }
+        ])
+      } else {
+        Alert.alert(error.response.data.message);
+      }
     }
   };
 
