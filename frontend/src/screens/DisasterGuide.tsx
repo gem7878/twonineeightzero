@@ -1,5 +1,5 @@
 import React from 'react';
-import {Text, View, FlatList} from 'react-native';
+import {FlatList} from 'react-native';
 import styled from 'styled-components/native';
 import {BackHeader} from '../components/index';
 
@@ -8,31 +8,56 @@ interface Props {
 }
 
 const DisasterGuide: React.FC<Props> = ({route}) => {
-  const {guideInformation} = route.params;
+  const [document, icon, guideInformation] = route.params.guideInformation;
 
   return (
-    <View style={{margin: 20}}>
-      <BackHeader />
+    <>
+    <BackHeader />
+    <GuideContainer>
+      <DocumentText>{document}</DocumentText>
       {guideInformation.map((value: string, index: number) => {
         if (index % 2 === 0) {
-          return <Text style={{fontSize: 18, marginBottom: 10}}>{value}</Text>;
+          return <TitleText>{value}</TitleText>;
         } else {
           if (value.length !== 0) {
             return (
               <FlatList
                 data={value.split('-')}
                 renderItem={({item, index}) => (
-                  <Text style={{marginBottom: 10}}>
+                  <ListText>
                     {index + 1}. {item}
-                  </Text>
+                  </ListText>
                 )}
               />
             );
           }
         }
       })}
-    </View>
+    </GuideContainer>
+  </>
   );
 };
 
+const GuideContainer = styled.View`
+  margin: 5px 10px 10px 10px;
+  padding: 10px;
+`
+const DocumentText = styled.Text`
+  font-size: 20px;
+  color: black;
+  margin-bottom: 15px;
+  margin-top: -30px;
+`
+const TitleText = styled.Text`
+  font-size: 16px;
+  margin-bottom: 10px;
+  padding: 5px;
+  color: black;
+  background-color: lightgrey;
+  border-radius: 5px;
+`
+const ListText = styled.Text`
+  margin: 0px 5px 10px 5px;
+  color: black;
+`
 export default DisasterGuide;
