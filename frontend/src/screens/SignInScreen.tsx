@@ -30,7 +30,7 @@ const SignInScreen: React.FC = () => {
         if (res.status === 200) {
           console.log(res.data.user_name + ' 로그인 성공했습니다.');
           await AsyncStorage.setItem('my-token', res.data.accessToken);
-          await AsyncStorage.setItem('my-expiration', new Date(new Date().getTime() + (60*1000)).toISOString());
+          await AsyncStorage.setItem('my-expiration', new Date(new Date().getTime() + (60*1000*60*3)).toISOString()); // 3H limit
           goBack();
         }
       })
