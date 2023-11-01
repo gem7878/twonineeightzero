@@ -85,8 +85,8 @@ const Content: React.FC<ContentProps> = ({
     let preFacilityList = [];
     let nextFacilityList = [];
 
-    setPreStation(preFacility['전철역명']);
-    setNextStation(nextFacility['전철역명']);
+    setPreStation(preFacility['전철역명'] || ""); // "전철역명" 데이터 없을때는 빈문자열로 저장
+    setNextStation(nextFacility['전철역명'] || "");
 
     if (preFacility !== null) {
       for (let key in preFacility) {
@@ -164,6 +164,7 @@ const Content: React.FC<ContentProps> = ({
 
   // 역 이동
   const moveStationName = (name: string) => {
+    if (name === '') return;
     navigation.navigate('Main', {
       lat: lat,
       lon: lon,
