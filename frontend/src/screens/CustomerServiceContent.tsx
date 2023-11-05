@@ -1,9 +1,26 @@
 import React, {useEffect, useState} from 'react';
-import {Alert, Text, TextInput, TouchableOpacity, View, Keyboard, ScrollView, TouchableWithoutFeedback} from 'react-native';
+import {
+  Alert,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+  Keyboard,
+  ScrollView,
+  TouchableWithoutFeedback,
+  StyleSheet,
+  Platform,
+  SafeAreaView,
+  StatusBar,
+} from 'react-native';
 import styled from 'styled-components/native';
 import axiosInstance from '../apis/service/client';
 import {BackHeader} from '../components';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import {Dimensions} from 'react-native';
+
+const window = Dimensions.get('window');
 
 interface Props {
   route: any;
@@ -11,11 +28,11 @@ interface Props {
 }
 
 interface commentDataInterface {
-  commentId: number,
-  content: string,
-  updatedAt: string,
-  userName: string,
-  editable: boolean,
+  commentId: number;
+  content: string;
+  updatedAt: string;
+  userName: string;
+  editable: boolean;
 }
 
 const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
@@ -31,7 +48,9 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
   const [isEditable, setIsEditable] = useState(false);
 
   const [commment, setCommment] = useState('');
-  const [commentList, setCommentList] = useState<Array<commentDataInterface>>([]);
+  const [commentList, setCommentList] = useState<Array<commentDataInterface>>(
+    [],
+  );
 
   useEffect(() => {
     setContentId(route.params.id);
@@ -61,17 +80,16 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
   };
 
   const loadToken = async () => {
-    console.log("load token");
-    const myToken : any = await AsyncStorage.getItem('my-token');
-    const expirationTime : any = await AsyncStorage.getItem('my-expiration');
+    console.log('load token');
+    const myToken: any = await AsyncStorage.getItem('my-token');
+    const expirationTime: any = await AsyncStorage.getItem('my-expiration');
     if (myToken !== null && expirationTime !== null) {
       console.log(new Date());
       console.log(new Date(expirationTime));
-      if(new Date() >= new Date(expirationTime)) {
+      if (new Date() >= new Date(expirationTime)) {
         await AsyncStorage.removeItem('my-token');
         await AsyncStorage.removeItem('my-expiration');
-        Alert.alert('권한이 없습니다.', '로그인하시겠습니까?',
-        [
+        Alert.alert('권한이 없습니다.', '로그인하시겠습니까?', [
           {
             text: '아니요',
             onPress: () => moveMenuScreen('CustomerService'),
@@ -79,8 +97,8 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
           {
             text: '네',
             onPress: () => moveMenuScreen('SignIn'),
-          }
-        ])
+          },
+        ]);
         setIsEditable(false);
         setIsPostEditing(false);
         return null;
@@ -106,7 +124,7 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
       setContent(boardData.data.content);
       setDate(localDateTimeString(boardData.data.updatedAt));
       setIsEditable(boardData.data.editable);
-    } catch (error:any) {
+    } catch (error: any) {
       console.error(error.response.data.message);
     }
   };
@@ -130,10 +148,9 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
         Alert.alert('게시글 업데이트 완료!');
         setIsPostEditing(false);
       }
-    } catch (error:any) {
-      if(error.response.status === 403) {
-        Alert.alert('권한이 없습니다.', '로그인하시겠습니까?',
-        [
+    } catch (error: any) {
+      if (error.response.status === 403) {
+        Alert.alert('권한이 없습니다.', '로그인하시겠습니까?', [
           {
             text: '아니요',
             onPress: () => moveMenuScreen('CustomerService'),
@@ -141,8 +158,8 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
           {
             text: '네',
             onPress: () => moveMenuScreen('SignIn'),
-          }
-        ])
+          },
+        ]);
       } else {
         Alert.alert(error.response.data.message);
       }
@@ -159,14 +176,13 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
         },
       );
 
-      if (deleted.data.success == true) {
+      if (deleted.data.success === true) {
         Alert.alert('게시글 삭제 완료!');
         return navigation.navigate('CustomerService');
       }
-    } catch (error:any) {
-      if(error.response.status === 403) {
-        Alert.alert('권한이 없습니다.', '로그인하시겠습니까?',
-        [
+    } catch (error: any) {
+      if (error.response.status === 403) {
+        Alert.alert('권한이 없습니다.', '로그인하시겠습니까?', [
           {
             text: '아니요',
             onPress: () => moveMenuScreen('CustomerService'),
@@ -174,8 +190,8 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
           {
             text: '네',
             onPress: () => moveMenuScreen('SignIn'),
-          }
-        ])
+          },
+        ]);
       } else {
         Alert.alert(error.response.data.message);
       }
@@ -189,8 +205,10 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
       });
 
       console.log('hello', commentData.data);
+      console.log('!!!!!!!', commentData.data.length);
+
       setCommentList(commentData.data);
-    } catch (error:any) {
+    } catch (error: any) {
       console.error(error.response.data.message);
     }
   };
@@ -208,16 +226,15 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
         },
       );
 
-      if (posted.data.success == true) {
+      if (posted.data.success === true) {
         getCommentData(route.params.id);
         setCommment('');
         Keyboard.dismiss();
         Alert.alert('댓글 작성 완료!');
       }
-    } catch (error:any) {
-      if(error.response.status === 403) {
-        Alert.alert('권한이 없습니다.', '로그인하시겠습니까?',
-        [
+    } catch (error: any) {
+      if (error.response.status === 403) {
+        Alert.alert('권한이 없습니다.', '로그인하시겠습니까?', [
           {
             text: '아니요',
             onPress: () => moveMenuScreen('CustomerService'),
@@ -225,8 +242,8 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
           {
             text: '네',
             onPress: () => moveMenuScreen('SignIn'),
-          }
-        ])
+          },
+        ]);
       } else {
         Alert.alert(error.response.data.message);
       }
@@ -254,10 +271,9 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
         getCommentData(contentId);
         Alert.alert('댓글 수정 완료!');
       }
-    } catch (error:any) {
-      if(error.response.status === 403) {
-        Alert.alert('권한이 없습니다.', '로그인하시겠습니까?',
-        [
+    } catch (error: any) {
+      if (error.response.status === 403) {
+        Alert.alert('권한이 없습니다.', '로그인하시겠습니까?', [
           {
             text: '아니요',
             onPress: () => moveMenuScreen('CustomerService'),
@@ -265,8 +281,8 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
           {
             text: '네',
             onPress: () => moveMenuScreen('SignIn'),
-          }
-        ])
+          },
+        ]);
       } else {
         Alert.alert(error.response.data.message);
       }
@@ -287,10 +303,9 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
         Alert.alert('댓글 삭제 완료!');
         getCommentData(route.params.id);
       }
-    } catch (error:any) {
-      if(error.response.status === 403) {
-        Alert.alert('권한이 없습니다.', '로그인하시겠습니까?',
-        [
+    } catch (error: any) {
+      if (error.response.status === 403) {
+        Alert.alert('권한이 없습니다.', '로그인하시겠습니까?', [
           {
             text: '아니요',
             onPress: () => moveMenuScreen('CustomerService'),
@@ -298,8 +313,8 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
           {
             text: '네',
             onPress: () => moveMenuScreen('SignIn'),
-          }
-        ])
+          },
+        ]);
       } else {
         Alert.alert(error.response.data.message);
       }
@@ -307,116 +322,143 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
   };
 
   return (
-    <>
-      <BackHeader />
-      <CustomerServiceContentContainer>
-        {isPostEditing ? (
-          <CustomerServiceWriteContainer>
-            <BigText>글 수정하기</BigText>
-            <MiddleText>제목</MiddleText>
-            <CustomerServiceInput
-              defaultValue={title}
-              onChangeText={value => setTitle(value)}
-            />
-            <MiddleText>내용</MiddleText>
-            <CustomerServiceInput
-              defaultValue={content}
-              onChangeText={value => setContent(value)}
-              numberOfLines={10}
-            />
-            <ButtonContainer>
-              <SubmitButton onPress={() => updateBoardData()}>
-                <SubmitText>게시글 업데이트</SubmitText>
-              </SubmitButton>
-              <SubmitButton onPress={() => setIsPostEditing(false)}>
-                <SubmitText>취소</SubmitText>
-              </SubmitButton>
-            </ButtonContainer>
-          </CustomerServiceWriteContainer>
-        ) : (
-          <>
-            {isEditable && (
-              <CustomerEditView>
-                <CustomerServiceButton onPress={() => setIsPostEditing(true)}>
-                  <CustomerServiceText>편집하기</CustomerServiceText>
-                </CustomerServiceButton>
-                <CustomerServiceButton onPress={() => deleteBoardData()}>
-                  <CustomerServiceText>삭제하기</CustomerServiceText>
-                </CustomerServiceButton>
-              </CustomerEditView>
-            )}
-            <CustomerTitleView>
-              <CustomerTitleText>{title}</CustomerTitleText>
-            </CustomerTitleView>
-            <CustomerDateText>{postUserName}</CustomerDateText>
-            <CustomerContentView>
-              <CustomerContentText>{content}</CustomerContentText>
-            </CustomerContentView>
-
-            <CustomerDateText>{date}</CustomerDateText>
-
-            <CustomerCommentView>
-              <CustomerCommentInput
-                numberOfLines={4}
-                placeholder="댓글을 입력하세요"
-                onChangeText={value => setCommment(value)}
+    <KeyboardAwareScrollView
+      // style={styles.container}
+      extraHeight={250}
+      enableOnAndroid={true}
+      // enableAutomaticScroll={Platform.OS === 'android'}
+      // contentContainerStyle={styles.container}
+      contentContainerStyle={{height: 900}}
+      resetScrollToCoords={{x: 0, y: 0}}
+      scrollEnabled={true}
+      enableAutomaticScroll={true}>
+      <SafeAreaView
+      // style={styles.container}
+      >
+        {/* <ScrollView> */}
+        <BackHeader />
+        <CustomerServiceContentContainer>
+          {isPostEditing ? (
+            <CustomerServiceWriteContainer>
+              <BigText>글 수정하기</BigText>
+              <MiddleText>제목</MiddleText>
+              <CustomerServiceInput
+                defaultValue={title}
+                onChangeText={value => setTitle(value)}
               />
-              <CustomerServiceButton onPress={() => postCommentData()}>
-                <CustomerServiceText>확인</CustomerServiceText>
-              </CustomerServiceButton>
-            </CustomerCommentView>
-            {commentList.length > 0 &&
-              commentList.map((value, index) => {
-                return (
-                  <CustomerCommentList key={index}>
-                    <CustomerCommentId>{value.userName}</CustomerCommentId>
-                    {isCommentEditing === index + 1 ? (
-                      <TextInput
-                        defaultValue={value.content}
-                        onChangeText={inputValue => setCommment(inputValue)}
-                      />
-                    ) : (
-                      <CustomerCommentContent>
-                        {value.content}
-                      </CustomerCommentContent>
-                    )}
+              <MiddleText>내용</MiddleText>
+              <CustomerServiceInput
+                defaultValue={content}
+                onChangeText={value => setContent(value)}
+                numberOfLines={10}
+              />
+              <ButtonContainer>
+                <SubmitButton onPress={() => updateBoardData()}>
+                  <SubmitText>게시글 업데이트</SubmitText>
+                </SubmitButton>
+                <SubmitButton onPress={() => setIsPostEditing(false)}>
+                  <SubmitText>취소</SubmitText>
+                </SubmitButton>
+              </ButtonContainer>
+            </CustomerServiceWriteContainer>
+          ) : (
+            <>
+              {isEditable && (
+                <CustomerEditView>
+                  <CustomerServiceButton onPress={() => setIsPostEditing(true)}>
+                    <CustomerServiceText>편집하기</CustomerServiceText>
+                  </CustomerServiceButton>
+                  <CustomerServiceButton onPress={() => deleteBoardData()}>
+                    <CustomerServiceText>삭제하기</CustomerServiceText>
+                  </CustomerServiceButton>
+                </CustomerEditView>
+              )}
+              <CustomerTitleView>
+                <CustomerTitleText>{title}</CustomerTitleText>
+              </CustomerTitleView>
+              <CustomerDateText>{postUserName}</CustomerDateText>
+              <CustomerContentView>
+                <CustomerContentText>{content}</CustomerContentText>
+              </CustomerContentView>
 
-                    {value.editable &&
-                      (isCommentEditing === index + 1 ? (
-                        <CustomerCommentEdit>
-                          <CustomerCommentButton
-                            onPress={() => updateCommentData(value.commentId)}>
-                            <CustomerCommentButtonText>
-                              확인
-                            </CustomerCommentButtonText>
-                          </CustomerCommentButton>
-                        </CustomerCommentEdit>
+              <CustomerDateText>{date}</CustomerDateText>
+
+              <CustomerCommentView>
+                <CustomerCommentInput
+                  numberOfLines={4}
+                  placeholder="댓글을 입력하세요"
+                  onChangeText={value => setCommment(value)}
+                />
+                <CustomerServiceButton onPress={() => postCommentData()}>
+                  <CustomerServiceText>확인</CustomerServiceText>
+                </CustomerServiceButton>
+              </CustomerCommentView>
+              {commentList.length > 0 &&
+                commentList.map((value, index) => {
+                  return (
+                    <CustomerCommentList key={index}>
+                      <CustomerCommentId>{value.userName}</CustomerCommentId>
+                      {isCommentEditing === index + 1 ? (
+                        <TextInput
+                          defaultValue={value.content}
+                          onChangeText={inputValue => setCommment(inputValue)}
+                        />
                       ) : (
-                        <CustomerCommentEdit>
-                          <CustomerCommentButton
-                            onPress={() => setIsCommentEditing(index + 1)}>
-                            <CustomerCommentButtonText>
-                              편집
-                            </CustomerCommentButtonText>
-                          </CustomerCommentButton>
-                          <CustomerCommentButton
-                            onPress={() => deleteCommentData(value.commentId)}>
-                            <CustomerCommentButtonText>
-                              삭제
-                            </CustomerCommentButtonText>
-                          </CustomerCommentButton>
-                        </CustomerCommentEdit>
-                      )
-                    )}
-                  </CustomerCommentList>
-                );
-              })}
-          </>
-        )}
-      </CustomerServiceContentContainer>
-    </>
+                        <CustomerCommentContent>
+                          {value.content}
+                        </CustomerCommentContent>
+                      )}
+
+                      {value.editable &&
+                        (isCommentEditing === index + 1 ? (
+                          <CustomerCommentEdit>
+                            <CustomerCommentButton
+                              onPress={() =>
+                                updateCommentData(value.commentId)
+                              }>
+                              <CustomerCommentButtonText>
+                                확인
+                              </CustomerCommentButtonText>
+                            </CustomerCommentButton>
+                          </CustomerCommentEdit>
+                        ) : (
+                          <CustomerCommentEdit>
+                            <CustomerCommentButton
+                              onPress={() => setIsCommentEditing(index + 1)}>
+                              <CustomerCommentButtonText>
+                                편집
+                              </CustomerCommentButtonText>
+                            </CustomerCommentButton>
+                            <CustomerCommentButton
+                              onPress={() =>
+                                deleteCommentData(value.commentId)
+                              }>
+                              <CustomerCommentButtonText>
+                                삭제
+                              </CustomerCommentButtonText>
+                            </CustomerCommentButton>
+                          </CustomerCommentEdit>
+                        ))}
+                    </CustomerCommentList>
+                  );
+                })}
+            </>
+          )}
+        </CustomerServiceContentContainer>
+        {/* </ScrollView> */}
+      </SafeAreaView>
+    </KeyboardAwareScrollView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    height: window.height * 1,
+    // height: 700,
+    flex: 1,
+    // paddingBottom: 300,
+  },
+});
 
 const CustomerServiceContentContainer = styled.View`
   width: 100%;
@@ -523,25 +565,25 @@ const CustomerServiceInput = styled.TextInput`
 const BigText = styled.Text`
   font-size: 20px;
   color: black;
-`
+`;
 const MiddleText = styled.Text`
   width: 80%;
   color: black;
   font-size: 16px;
   margin: 10px;
-`
+`;
 const ButtonContainer = styled.View`
-  flexDirection: row;
-`
+  flexdirection: row;
+`;
 const SubmitButton = styled.TouchableOpacity`
-  margin-top:15px;
-`
+  margin-top: 15px;
+`;
 const SubmitText = styled.Text`
   color: black;
   font-size: 16px;
   margin: 5px;
   padding: 10px;
   background-color: #00ffd1;
-`
+`;
 
 export default CustomerServiceContent;

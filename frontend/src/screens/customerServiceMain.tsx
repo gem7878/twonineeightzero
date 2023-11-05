@@ -1,10 +1,17 @@
 import React, {useEffect, useReducer, useState} from 'react';
-import {TouchableOpacity, Text, ScrollView, Alert, View, RefreshControl} from 'react-native';
+import {
+  TouchableOpacity,
+  Text,
+  ScrollView,
+  Alert,
+  View,
+  RefreshControl,
+} from 'react-native';
 import styled from 'styled-components/native';
 import {BackHeader, TableComponent} from '../components';
 import axiosInstance from '../apis/service/client';
 import {useIsFocused} from '@react-navigation/native';
-import { BorderlessButton } from 'react-native-gesture-handler';
+import {BorderlessButton} from 'react-native-gesture-handler';
 
 interface Props {
   route: any;
@@ -12,12 +19,14 @@ interface Props {
 }
 
 interface boardDataInterface {
-  postId: number,
-  title: string,
-  userName: string,
+  postId: number;
+  title: string;
+  userName: string;
 }
 
-type Action = { type: 'reset' } | { type: 'addItem'; payload: Array<BorderlessButton> };
+type Action =
+  | {type: 'reset'}
+  | {type: 'addItem'; payload: Array<BorderlessButton>};
 
 export const heads = [
   '번호',
@@ -55,100 +64,96 @@ const CustomerServiceMain: React.FC<Props> = ({route, navigation}) => {
   const isFocused = useIsFocused();
 
   useEffect(() => {
-    if(isFocused) {
-      getPostFindAll(1,'newItem');
+    if (isFocused) {
+      getPostFindAll(1, 'newItem');
     }
-  }, [isFocused])
+  }, [isFocused]);
 
   useEffect(() => {
-    console.log('총 포스트 수: '+countAllPost);
-  }, [countAllPost])
+    console.log('총 포스트 수: ' + countAllPost);
+  }, [countAllPost]);
 
   // 새로고침 함수
   const onRefresh = () => {
     setRefreshing(true);
     setTimeout(() => {
-      getPostFindAll(1,'newItem');
+      getPostFindAll(1, 'newItem');
       setPage(1);
       setRefreshing(false);
     }, 2000);
-    
-  }
+  };
 
   const getPostFindAll = async (page: number, type: string = 'addItem') => {
     try {
-      const res = await axiosInstance
-        .get(`/board/post/page/${page}`)
+      const res = await axiosInstance.get(`/board/post/page/${page}`);
 
-      disPatch({ type: type, payload: res.data.data}); 
+      disPatch({type: type, payload: res.data.data});
       setCountPage(res.data.countPage);
       setCountAllPost(res.data.countAllPost);
-    } catch (error:any) {
+    } catch (error: any) {
       console.error(error.response.data.message);
     }
   };
 
   return (
     <>
-    <BackHeader/>
-    <CustomerServiceContainer>
-      <CustomerServiceTitle>고객의 소리</CustomerServiceTitle>
-      <WriteButton>
-        <TouchableOpacity onPress={() => navigation.navigate('CustomerServiceWrite')}>
-          <WriteButtonText>글쓰기</WriteButtonText>
-        </TouchableOpacity>
-      </WriteButton>
-    </CustomerServiceContainer>
-    <Container>
-      <TableComponent 
-        index='번호' 
-        title='제목' 
-        userName='글쓴이' 
-        disabled={true} 
-        onPressFunction={()=> {}} 
-        isTitle={true}
-      />
-      <ScrollView
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-          />
-        }
-      >
-        <ScrollContent>
-          {postData.map((value, idx) => 
-            (<TableComponent 
-              key={idx}
-              index={countAllPost-idx} 
-              title={value.title} 
-              userName={value.userName}
-              disabled={false} onPressFunction={async ()=> {
-                navigation.navigate('CustomerServiceContent', {
-                  id: value.postId
-                });
-              }}
-            />))}
-          <MoreButton
-            onPress={async () => {
-              if(page+1 <= countPage) {
-                setPage(page+1);
-                getPostFindAll(page+1);
-              } else {
-                Alert.alert('마지막 글입니다.');
-              }
-            }}
-          >
-            <MoreText>더보기</MoreText>
-          </MoreButton>
-        </ScrollContent>
-      </ScrollView>
-    </Container>
+      <BackHeader />
+      <CustomerServiceContainer>
+        <CustomerServiceTitle>고객의 소리</CustomerServiceTitle>
+        <WriteButton>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('CustomerServiceWrite')}>
+            <WriteButtonText>글쓰기</WriteButtonText>
+          </TouchableOpacity>
+        </WriteButton>
+      </CustomerServiceContainer>
+      <Container>
+        <TableComponent
+          index="번호"
+          title="제목"
+          userName="글쓴이"
+          disabled={true}
+          onPressFunction={() => {}}
+          isTitle={true}
+        />
+        <ScrollView
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }>
+          <ScrollContent>
+            {postData.map((value, idx) => (
+              <TableComponent
+                key={idx}
+                index={countAllPost - idx}
+                title={value.title}
+                userName={value.userName}
+                disabled={false}
+                onPressFunction={async () => {
+                  navigation.navigate('CustomerServiceContent', {
+                    id: value.postId,
+                  });
+                }}
+              />
+            ))}
+            <MoreButton
+              onPress={async () => {
+                if (page + 1 <= countPage) {
+                  setPage(page + 1);
+                  getPostFindAll(page + 1);
+                } else {
+                  Alert.alert('마지막 글입니다.');
+                }
+              }}>
+              <MoreText>더보기</MoreText>
+            </MoreButton>
+          </ScrollContent>
+        </ScrollView>
+      </Container>
     </>
   );
 };
 
-const CustomerServiceContainer = styled.View` 
+const CustomerServiceContainer = styled.View`
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -185,7 +190,7 @@ const MoreButton = styled.TouchableOpacity`
   display: flex;
   flex-direction: row;
   justify-content: space-around;
-  background-color: rgb(150,150,150);
+  background-color: rgb(150, 150, 150);
   padding: 10px;
 `;
 const MoreText = styled.Text`
