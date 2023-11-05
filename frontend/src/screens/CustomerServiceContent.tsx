@@ -80,7 +80,6 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
   };
 
   const loadToken = async () => {
-    console.log('load token');
     const myToken: any = await AsyncStorage.getItem('my-token');
     const expirationTime: any = await AsyncStorage.getItem('my-expiration');
     if (myToken !== null && expirationTime !== null) {
@@ -204,9 +203,6 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
         headers: {'x-access-token': token},
       });
 
-      console.log('hello', commentData.data);
-      console.log('!!!!!!!', commentData.data.length);
-
       setCommentList(commentData.data);
     } catch (error: any) {
       console.error(error.response.data.message);
@@ -231,6 +227,7 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
         setCommment('');
         Keyboard.dismiss();
         Alert.alert('댓글 작성 완료!');
+        setCommment('');
       }
     } catch (error: any) {
       if (error.response.status === 403) {
@@ -323,19 +320,14 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
 
   return (
     <KeyboardAwareScrollView
-      // style={styles.container}
       extraHeight={250}
       enableOnAndroid={true}
       // enableAutomaticScroll={Platform.OS === 'android'}
-      // contentContainerStyle={styles.container}
-      contentContainerStyle={{height: 900}}
+      contentContainerStyle={commentStyles.container}
       resetScrollToCoords={{x: 0, y: 0}}
       scrollEnabled={true}
       enableAutomaticScroll={true}>
-      <SafeAreaView
-      // style={styles.container}
-      >
-        {/* <ScrollView> */}
+      <SafeAreaView style={{height: window.height * 1}}>
         <BackHeader />
         <CustomerServiceContentContainer>
           {isPostEditing ? (
@@ -388,6 +380,7 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
                   numberOfLines={4}
                   placeholder="댓글을 입력하세요"
                   onChangeText={value => setCommment(value)}
+                  value={commment}
                 />
                 <CustomerServiceButton onPress={() => postCommentData()}>
                   <CustomerServiceText>확인</CustomerServiceText>
@@ -445,18 +438,14 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
             </>
           )}
         </CustomerServiceContentContainer>
-        {/* </ScrollView> */}
       </SafeAreaView>
     </KeyboardAwareScrollView>
   );
 };
 
-const styles = StyleSheet.create({
+const commentStyles = StyleSheet.create({
   container: {
-    height: window.height * 1,
-    // height: 700,
-    flex: 1,
-    // paddingBottom: 300,
+    height: window.height * 2,
   },
 });
 
@@ -467,13 +456,14 @@ const CustomerServiceContentContainer = styled.View`
 const CustomerTitleView = styled.View`
   width: 70%;
   height: fit-content;
+  /* height: 50; */
 `;
 const CustomerTitleText = styled.Text`
   font-size: 25px;
 `;
 const CustomerContentView = styled.View`
   width: 70%;
-  height: 40%;
+  height: 250;
   margin-top: 10px;
   border: 1px solid black;
 `;
@@ -525,6 +515,7 @@ const CustomerCommentList = styled.View`
   width: 70%;
   margin-top: 5px;
   align-items: center;
+  flex-wrap: wrap;
 `;
 const CustomerCommentId = styled.Text`
   font-size: 12px;

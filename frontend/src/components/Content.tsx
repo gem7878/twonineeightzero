@@ -3,7 +3,7 @@ import React, {useEffect, useState} from 'react';
 import styled from 'styled-components/native';
 import {Congestion, Refresh} from './index';
 import {TouchableOpacity} from 'react-native-gesture-handler';
-import {Alert, Text} from 'react-native';
+import {Alert, ScrollView, Text} from 'react-native';
 
 interface StationContainerStyle {
   $number: string;
@@ -45,7 +45,7 @@ const Content: React.FC<ContentProps> = ({
   navigation,
   reLocation,
 }) => {
-  const [currentFacilitiesList, setCurrentFacilitiesList] = useState<any>([]);
+  const [currentFacilitiesList, setCurrentFacilitiesList] = useState<any>({});
   const [preFacilitiesList, setPreFacilitiesList] = useState<any>([]);
   const [nextFacilitiesList, setNextFacilitiesList] = useState<any>([]);
 
@@ -85,8 +85,8 @@ const Content: React.FC<ContentProps> = ({
     let preFacilityList = [];
     let nextFacilityList = [];
 
-    setPreStation(preFacility['전철역명'] || ""); // "전철역명" 데이터 없을때는 빈문자열로 저장
-    setNextStation(nextFacility['전철역명'] || "");
+    setPreStation(preFacility['전철역명'] || ''); // "전철역명" 데이터 없을때는 빈문자열로 저장
+    setNextStation(nextFacility['전철역명'] || '');
 
     if (preFacility !== null) {
       for (let key in preFacility) {
@@ -187,10 +187,11 @@ const Content: React.FC<ContentProps> = ({
       Alert.alert('아직 5호선~8호선만 지원합니다.');
     }
   };
+
   return (
     <ContentContainer>
       <ContentHeader>
-        <Refresh lat={lat} lon={lon} reLocation={reLocation}/>
+        <Refresh lat={lat} lon={lon} reLocation={reLocation} />
         <LineNumberListContainer>
           <LineNumberListBox>
             {currentLines.map((value: string, index: number) => {
@@ -214,7 +215,9 @@ const Content: React.FC<ContentProps> = ({
         <StationContainer $number={current.호선}>
           <StationBox onPress={() => moveStationName(preStation)}>
             <StationText textLength={5}>&lt;&nbsp;&nbsp;</StationText>
-            <StationText textLength={preStation.length}>{preStation}</StationText>
+            <StationText textLength={preStation.length}>
+              {preStation}
+            </StationText>
           </StationBox>
           <StationMainBox $number={current.호선}>
             <BlackText textLength={stationName.length}>
@@ -222,7 +225,9 @@ const Content: React.FC<ContentProps> = ({
             </BlackText>
           </StationMainBox>
           <StationBox onPress={() => moveStationName(nextStation)}>
-            <StationText textLength={nextStation.length}>{nextStation}</StationText>
+            <StationText textLength={nextStation.length}>
+              {nextStation}
+            </StationText>
             <StationText textLength={5}>&nbsp;&nbsp;&gt;</StationText>
           </StationBox>
         </StationContainer>
@@ -231,22 +236,30 @@ const Content: React.FC<ContentProps> = ({
           <WhiteText>
             {isOpenPos ? (
               <>
-                <PointText textLength={5}>{stationName}역</PointText> {isOpenPos}의 위치
+                <PointText textLength={5}>{stationName}역</PointText>{' '}
+                {isOpenPos}의 위치
               </>
             ) : (
               <>
-                <PointText textLength={5}>{stationName}역</PointText> 의 주요 시설물
+                <PointText textLength={5}>{stationName}역</PointText> 의 주요
+                시설물
               </>
             )}
           </WhiteText>
           {isOpenPos ? (
             <FacilityView>
-              {currentFacilitiesList.length > 0 ? (
-                Object.keys(currentFacilitiesList[isOpenPos]).map(
-                  (value, index) => {
-                    return <WhiteText key={index}>{value}</WhiteText>;
-                  },
-                )
+              {Object.keys(currentFacilitiesList).includes(isOpenPos) ? (
+                Object.keys(currentFacilitiesList[isOpenPos]).map(pos => {
+                  return currentFacilitiesList[isOpenPos][pos].map(
+                    (detailValue: object, index: number) => {
+                      return (
+                        <FacilityViewDetail key={index}>
+                          {pos}[ {detailValue['상세위치']} ],
+                        </FacilityViewDetail>
+                      );
+                    },
+                  );
+                })
               ) : (
                 <></>
               )}
@@ -317,7 +330,10 @@ const Content: React.FC<ContentProps> = ({
         <FacilityPreNextContainer>
           <FacilityBox>
             <WhiteText>
-              <PointText textLength={preStation.length}>{preStation}역</PointText> 의 시설물
+              <PointText textLength={preStation.length}>
+                {preStation}역
+              </PointText>{' '}
+              의 시설물
             </WhiteText>
             <FacilityList>
               {preFacilitiesList.map((list: any, index: number) => {
@@ -359,7 +375,10 @@ const Content: React.FC<ContentProps> = ({
           </FacilityBox>
           <FacilityBox>
             <WhiteText>
-              <PointText textLength={nextStation.length}>{nextStation}역</PointText> 의 시설물
+              <PointText textLength={nextStation.length}>
+                {nextStation}역
+              </PointText>{' '}
+              의 시설물
             </WhiteText>
             <FacilityList>
               {nextFacilitiesList.map((list: any, index: number) => {
@@ -407,13 +426,13 @@ const Content: React.FC<ContentProps> = ({
 const WhiteText = styled.Text`
   color: white;
 `;
-const BlackText = styled.Text<{ textLength: number }>`
+const BlackText = styled.Text<{textLength: number}>`
   color: black;
-  font-size: ${(props) => (props.textLength >=7 ? '10px' : '14px')};
+  font-size: ${props => (props.textLength >= 7 ? '10px' : '14px')};
 `;
-const PointText = styled.Text<{ textLength: number }>`
+const PointText = styled.Text<{textLength: number}>`
   color: #00ffd1;
-  font-size: ${(props) => (props.textLength >=6 ? '11px' : '14px')};
+  font-size: ${props => (props.textLength >= 6 ? '11px' : '14px')};
 `;
 const ContentContainer = styled.View`
   width: 100%;
@@ -492,9 +511,9 @@ const StationBox = styled.TouchableOpacity`
   align-items: center;
   justify-content: center;
 `;
-const StationText = styled.Text<{ textLength: number }>`
+const StationText = styled.Text<{textLength: number}>`
   color: black;
-  font-size: ${(props) => (props.textLength >=6 ? '10px' : '14px')};
+  font-size: ${props => (props.textLength >= 6 ? '10px' : '14px')};
 `;
 const StationMainBox = styled.View<StationContainerStyle>`
   width: 40%;
@@ -538,8 +557,16 @@ const FacilityView = styled.View`
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  gap: 12px;
+  row-gap: 6px;
+  column-gap: 12px;
   height: 63%;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  padding: 0 5px;
+`;
+const FacilityViewDetail = styled.Text`
+  font-size: 11px;
+  color: white;
 `;
 const FacilityPreNextContainer = styled.View`
   display: flex;
