@@ -88,6 +88,7 @@ const GuideFooter: React.FC<GuideFooterProps> = ({
                   navigation.navigate('DisasterGuides', {
                     guideInformation: value,
                   });
+                  setMenuOpen(openMenu ? !openMenu : openMenu);
                 }
               }}>
               {index !== menuList.length - 1 ? (
