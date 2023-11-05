@@ -88,16 +88,6 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
       if (new Date() >= new Date(expirationTime)) {
         await AsyncStorage.removeItem('my-token');
         await AsyncStorage.removeItem('my-expiration');
-        Alert.alert('권한이 없습니다.', '로그인하시겠습니까?', [
-          {
-            text: '아니요',
-            onPress: () => moveMenuScreen('CustomerService'),
-          },
-          {
-            text: '네',
-            onPress: () => moveMenuScreen('SignIn'),
-          },
-        ]);
         setIsEditable(false);
         setIsPostEditing(false);
         return null;
@@ -152,7 +142,7 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
         Alert.alert('권한이 없습니다.', '로그인하시겠습니까?', [
           {
             text: '아니요',
-            onPress: () => moveMenuScreen('CustomerService'),
+            onPress: () => moveMenuScreen('CustomerServiceContent'),
           },
           {
             text: '네',
@@ -184,7 +174,7 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
         Alert.alert('권한이 없습니다.', '로그인하시겠습니까?', [
           {
             text: '아니요',
-            onPress: () => moveMenuScreen('CustomerService'),
+            onPress: () => moveMenuScreen('CustomerServiceContent'),
           },
           {
             text: '네',
@@ -234,7 +224,7 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
         Alert.alert('권한이 없습니다.', '로그인하시겠습니까?', [
           {
             text: '아니요',
-            onPress: () => moveMenuScreen('CustomerService'),
+            onPress: () => moveMenuScreen('CustomerServiceContent'),
           },
           {
             text: '네',
@@ -273,7 +263,7 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
         Alert.alert('권한이 없습니다.', '로그인하시겠습니까?', [
           {
             text: '아니요',
-            onPress: () => moveMenuScreen('CustomerService'),
+            onPress: () => moveMenuScreen('CustomerServiceContent'),
           },
           {
             text: '네',
@@ -305,7 +295,7 @@ const CustomerServiceContent: React.FC<Props> = ({route, navigation}) => {
         Alert.alert('권한이 없습니다.', '로그인하시겠습니까?', [
           {
             text: '아니요',
-            onPress: () => moveMenuScreen('CustomerService'),
+            onPress: () => moveMenuScreen('CustomerServiceContent'),
           },
           {
             text: '네',

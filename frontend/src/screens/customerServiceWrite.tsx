@@ -4,6 +4,8 @@ import styled from 'styled-components/native';
 import axiosInstance from '../apis/service/client';
 import {BackHeader} from '../components';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useIsFocused} from '@react-navigation/native';
+
 
 interface Props {
   navigation: any;
@@ -12,24 +14,15 @@ interface Props {
 const CustomerServiceWrite: React.FC<Props> = ({navigation}) => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [date, setDate] = useState('');
   const [token, setToken] = useState('');
 
-  useEffect(() => {
-    let today = new Date();
-    let formattedMonth =
-      today.getMonth() + 1 < 10
-        ? `0${today.getMonth() + 1}`
-        : `${today.getMonth() + 1}`;
-    let formattedDate =
-      today.getDate() < 10 ? `0${today.getDate()}` : `${today.getDate()}`;
-
-    setDate(`${today.getFullYear()}-${formattedMonth}-${formattedDate}`);
-  }, [date]);
+  const isFocused = useIsFocused();
 
   useEffect(() => {
-    loadData();
-  }, []);
+    if(isFocused) {
+      loadData();
+    }
+  }, [isFocused]);
 
   const loadData = async () => {
     await AsyncStorage.getItem('my-token')
@@ -48,10 +41,13 @@ const CustomerServiceWrite: React.FC<Props> = ({navigation}) => {
 
   const postBoardData = async () => {
     try {
+      if(title.length === 0 && content.length === 0) {
+        Alert.alert('제목과 내용이 있어야 합니다.');
+        return;
+      }
       let formData = {
         title: title,
         content: content,
-        // userName:
       };
       const res = await axiosInstance
         .post('/board/post/write', formData, {
@@ -67,7 +63,7 @@ const CustomerServiceWrite: React.FC<Props> = ({navigation}) => {
         [
           {
             text: '아니요',
-            onPress: () => moveMenuScreen('CustomerService'),
+            onPress: () => moveMenuScreen('CustomerServiceWrite'),
           },
           {
             text: '네',

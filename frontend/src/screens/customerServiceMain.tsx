@@ -66,6 +66,7 @@ const CustomerServiceMain: React.FC<Props> = ({route, navigation}) => {
   useEffect(() => {
     if (isFocused) {
       getPostFindAll(1, 'newItem');
+      setPage(1); // 1페이지로 초기화
     }
   }, [isFocused]);
 

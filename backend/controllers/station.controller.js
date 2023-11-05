@@ -227,9 +227,10 @@ async function getEscalators(stationName, stationLine) {
 async function getElevators(stationName, stationLine) {
     const elevator = await getFileData(stationName, 1, stationLine);
     const el_list = {};
-    let uniqueIndex1 = 1;
+    const el_array = [];
     elevator.forEach((row) => {
-      let new_row = { 구분: uniqueIndex1, 상세위치: row.상세위치 };
+      let new_row = {상세위치: row.상세위치 };
+
       let floors = row.상세위치
         .match(/\(.*\)/)[0]
         .match(/\w\d/g)
@@ -237,12 +238,15 @@ async function getElevators(stationName, stationLine) {
       floors = allfloor(floors);
       floors.forEach((floor) => {
         if (Object.keys(el_list).includes(floor)) {
-          el_list[floor].push(new_row);
+          if(!el_array.includes(row.상세위치)) {
+            el_list[floor].push(new_row);
+            el_array.push(row.상세위치);
+          }
         } else {
           el_list[floor] = [new_row];
+          el_array.push(row.상세위치);
         }
       });
-      uniqueIndex1++;
     });
   
     return el_list;
